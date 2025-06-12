@@ -21,4 +21,26 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Ensure content is readable over video background */
+.video-overlay-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Improve text contrast over video background */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Enhance UI elements over video background */
+.bg-enhanced {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.dark .bg-enhanced {
+  background-color: rgba(0, 0, 0, 0.85);
 }
