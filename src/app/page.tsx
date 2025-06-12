@@ -46,7 +46,7 @@ export default function Home() {
         <source src="/background.webm" type="video/webm" />
         Your browser does not support the video tag.
       </video>
-      
+
       {/* Overlay for better content readability */}
       <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-[-1]" />
       {/* Authentication Status Bar */}
