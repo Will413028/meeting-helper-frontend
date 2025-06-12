@@ -9,6 +9,7 @@ interface LoginResponse {
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -54,25 +55,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--background)] p-8">
-      <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 border border-gray-200 dark:border-gray-700">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Welcome Back
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Please sign in to your account
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-300 flex flex-col items-center justify-center p-8">
+      {/* Logo */}
+      <div className="mb-16">
+        <h1 className="text-6xl font-bold text-black tracking-wider">
+          LOGO
+        </h1>
+      </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Login Form Card */}
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-3xl p-8 shadow-lg">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Username Field */}
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-lg font-medium text-black mb-3"
               >
-                Username
+                帳號
               </label>
               <input
                 id="username"
@@ -80,59 +81,89 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your username"
+                className="w-full px-0 py-3 border-0 border-b-2 border-gray-300 bg-transparent text-gray-600 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-0"
+                placeholder="請輸入帳號"
                 disabled={isLoading}
               />
             </div>
 
+            {/* Password Field */}
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-lg font-medium text-black mb-3"
               >
-                Password
+                密碼
               </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Enter your password"
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-0 py-3 pr-10 border-0 border-b-2 border-gray-300 bg-transparent text-gray-600 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-0"
+                  placeholder="請輸入密碼"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  aria-label={showPassword ? "隱藏密碼" : "顯示密碼"}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    {showPassword ? (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                      />
+                    ) : (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    )}
+                    {!showPassword && (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    )}
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
                 {error}
               </div>
             )}
 
-            <div className="flex justify-center">
+            {/* Login Button */}
+            <div className="pt-6">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="m-4 max-w-xs rounded-xl border border-gray-200 dark:border-gray-600 p-6 text-left text-inherit transition-colors hover:border-blue-600 hover:text-blue-600 focus:border-blue-600 focus:text-blue-600 active:border-blue-600 active:text-blue-600 cursor-pointer rounded-full border-solid border-black/[.08] dark:border-white/[.145] flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-green-700 hover:bg-green-800 text-white font-medium py-4 px-6 rounded-full text-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? "登入中..." : "登入"}
               </button>
             </div>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{" "}
-              <button
-                type="button"
-                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 bg-transparent border-none cursor-pointer"
-              >
-                Contact your administrator
-              </button>
-            </p>
-          </div>
         </div>
       </div>
     </div>
