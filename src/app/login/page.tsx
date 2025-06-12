@@ -39,13 +39,10 @@ export default function LoginPage() {
       const data = (await response.json()) as LoginResponse;
 
       if (response.ok && data.access_token) {
-        // Store token in localStorage
         localStorage.setItem("authToken", data.access_token);
 
-        // Store basic user info (username from form)
         localStorage.setItem("user", JSON.stringify({ username }));
 
-        // Redirect to home page or dashboard
         router.push("/");
       } else {
         setError("帳號或密碼錯誤");
@@ -75,8 +72,15 @@ export default function LoginPage() {
       {/* Content */}
       <div className="relative z-10">
         {/* Logo */}
-        <div className="mb-16 text-center">
-          <h1 className="text-6xl font-bold text-white tracking-wider">LOGO</h1>
+        <div className="mb-16 flex justify-center">
+          <Image
+            src="/logo.svg"
+            alt="SayWe Logo"
+            width={200}
+            height={64}
+            priority
+            className="mx-auto"
+          />
         </div>
 
         {/* Login Form Card */}
