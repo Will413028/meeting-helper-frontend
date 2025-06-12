@@ -5,17 +5,31 @@ import { auth } from "@/utils/auth";
 import { invoke } from "@tauri-apps/api/core";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
   const [greeted, setGreeted] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<{ username: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    setIsAuthenticated(auth.isAuthenticated());
-    setUser(auth.getUser());
-  }, []);
+    const checkAuth = () => {
+      const authenticated = auth.isAuthenticated();
+      setIsAuthenticated(authenticated);
+
+      if (!authenticated) {
+        router.push("/login");
+      } else {
+        setUser(auth.getUser());
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [router]);
 
   const greet = useCallback((): void => {
     invoke<string>("greet")
@@ -31,7 +45,22 @@ export default function Home() {
     auth.logout();
     setIsAuthenticated(false);
     setUser(null);
+    router.push("/login");
   };
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  // Only render the page content if authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="relative grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -51,27 +80,18 @@ export default function Home() {
       <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-[-1]" />
       {/* Authentication Status Bar */}
       <div className="fixed top-4 right-4 flex items-center gap-4 bg-enhanced px-4 py-2 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-        {isAuthenticated ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 dark:text-gray-300">
-              Welcome, {user?.username}
-            </span>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-            >
-              Logout
-            </button>
-          </div>
-        ) : (
-          <Link
-            href="/login"
-            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-600 dark:text-gray-300">
+            Welcome, {user?.username}
+          </span>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           >
-            Login
-          </Link>
-        )}
+            Logout
+          </button>
+        </div>
       </div>
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start video-overlay-content">
         <Image
