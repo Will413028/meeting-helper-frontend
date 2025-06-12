@@ -34,11 +34,9 @@
       "icons/icon.ico"
     ],
     "macOS": {
-      "minimumSystemVersion": "10.13",
-      "icon": "icons/app-icon-mac.png"
+      "minimumSystemVersion": "10.13"
     },
     "windows": {
-      "icon": "icons/app-icon-windows.png"
     }
   }
 }

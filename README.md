@@ -113,3 +113,7 @@ And to learn more about Tauri, take a look at the following resources:
 
 - [Tauri Documentation - Guides](https://v2.tauri.app/start/) - learn about the Tauri
   toolkit.
+
+
+
+pnpm tauri icon <png path>
