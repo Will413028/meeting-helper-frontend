@@ -1,18 +1,15 @@
 "use client";
-import { RoundedButton } from "@/components/RoundedButton";
-import { ICONS } from "@/constants/icons";
 import { auth } from "@/utils/auth";
-import { invoke } from "@tauri-apps/api/core";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [greeted, setGreeted] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<{ username: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [primaryLanguage, setPrimaryLanguage] = useState("繁體中文（預設）");
+  const [secondaryLanguage, setSecondaryLanguage] = useState("英文");
   const router = useRouter();
 
   useEffect(() => {
@@ -31,21 +28,16 @@ export default function Home() {
     checkAuth();
   }, [router]);
 
-  const greet = useCallback((): void => {
-    invoke<string>("greet")
-      .then((s) => {
-        setGreeted(s);
-      })
-      .catch((err: unknown) => {
-        console.error(err);
-      });
-  }, []);
-
   const handleLogout = () => {
     auth.logout();
     setIsAuthenticated(false);
     setUser(null);
     router.push("/login");
+  };
+
+  const handleTranscribe = () => {
+    // Handle transcription logic here
+    console.log("Starting transcription...");
   };
 
   // Show loading state while checking authentication
@@ -63,7 +55,7 @@ export default function Home() {
   }
 
   return (
-    <div className="relative grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="min-h-screen flex relative">
       {/* Video Background */}
       <video
         autoPlay
@@ -76,100 +68,217 @@ export default function Home() {
         Your browser does not support the video tag.
       </video>
 
-      {/* Overlay for better content readability */}
+      {/* Subtle overlay for better readability */}
       <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-[-1]" />
-      {/* Authentication Status Bar */}
-      <div className="fixed top-4 right-4 flex items-center gap-4 bg-enhanced px-4 py-2 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-600 dark:text-gray-300">
-            Welcome, {user?.username}
-          </span>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-          >
-            Logout
-          </button>
+      {/* Sidebar */}
+      <aside className="w-64 bg-gray-900/90 backdrop-blur-sm p-6 flex flex-col border-r border-gray-800">
+        <div className="mb-8">
+          <h1 className="text-white text-2xl font-bold">SayWe</h1>
         </div>
-      </div>
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start video-overlay-content">
-        <Image
-          className="dark:invert drop-shadow-lg"
-          src={ICONS.brands.next}
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)] text-shadow">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className="flex flex-col gap-2 items-start">
-          <RoundedButton
-            onClick={greet}
-            title="Call &quot;greet&quot; from Rust"
-          />
-          <p className="break-words w-md text-shadow">
-            {greeted ?? "Click the button to call the Rust function"}
-          </p>
+        <nav className="flex-1">
+          <ul className="space-y-4">
+            <li>
+              <button
+                type="button"
+                className="flex items-center gap-3 text-white/90 hover:text-white w-full p-3 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                  />
+                </svg>
+                <span>逐字稿生成</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className="flex items-center gap-3 text-white/70 hover:text-white w-full p-3 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                  />
+                </svg>
+                <span>逐字稿管理</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                className="flex items-center gap-3 text-white/70 hover:text-white w-full p-3 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span>設定</span>
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex items-center gap-3 text-white/70 hover:text-white w-full p-3 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                <span>登出</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        {/* User info at bottom */}
+        <div className="mt-auto pt-6 border-t border-white/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+              <span className="text-white font-medium">
+                {user?.username?.charAt(0).toUpperCase() || "A"}
+              </span>
+            </div>
+            <div>
+              <p className="text-white/90 text-sm font-medium">管理員</p>
+              <p className="text-white/60 text-xs">
+                {user?.username || "Admin"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 p-8 bg-gray-50/5">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-white mb-4 text-shadow">
+              智慧轉錄，更懂團隊溝通的節奏！
+            </h1>
+            <p className="text-white/90 text-lg text-shadow">
+              讓溝通不留遺漏，讓記憶有跡可循。
+            </p>
+          </div>
+
+          {/* Main Card */}
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">主要語言</h2>
+            <p className="text-gray-600 mb-6">
+              可以設定逐字稿所需要的語言，增加精準度！
+            </p>
+
+            <div className="space-y-6">
+              {/* Language Dropdown */}
+              <div>
+                <label htmlFor="secondary-language" className="block text-gray-700 text-sm font-medium mb-2">
+                  繁體中文
+                </label>
+                <div className="relative">
+                  <select
+                    id="secondary-language"
+                    value={secondaryLanguage}
+                    onChange={(e) => setSecondaryLanguage(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
+                  >
+                    <option value="繁體中文">繁體中文</option>
+                    <option value="英文">英文</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* File Upload Section */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <button
+                  type="button"
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  選擇上傳檔案
+                </button>
+                <p className="text-gray-500 text-sm mt-2">
+                  支援MP4、AVI、MOV、WebM、FLV、WMV、MP3、WAV格式
+                </p>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-center mt-8">
+                <button
+                  type="button"
+                  onClick={handleTranscribe}
+                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors duration-200 flex items-center gap-2 shadow-lg"
+                >
+                  轉換逐字稿
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center video-overlay-content">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src={ICONS.ui.file}
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src={ICONS.ui.window}
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src={ICONS.ui.globe}
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
