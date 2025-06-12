@@ -2,11 +2,21 @@
 import Orb from "@/components/Orb";
 import { RoundedButton } from "@/components/RoundedButton";
 import { invoke } from "@tauri-apps/api/core";
+import { auth } from "@/utils/auth";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import Link from "next/link";
+import { useCallback, useState, useEffect } from "react";
 
 export default function Home() {
   const [greeted, setGreeted] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ username: string } | null>(null);
+
+  useEffect(() => {
+    setIsAuthenticated(auth.isAuthenticated());
+    setUser(auth.getUser());
+  }, []);
+
   const greet = useCallback((): void => {
     invoke<string>("greet")
       .then((s) => {
@@ -17,8 +27,38 @@ export default function Home() {
       });
   }, []);
 
+  const handleLogout = () => {
+    auth.logout();
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      {/* Authentication Status Bar */}
+      <div className="fixed top-4 right-4 flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+        {isAuthenticated ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-600 dark:text-gray-300">
+              Welcome, {user?.username}
+            </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            Login
+          </Link>
+        )}
+      </div>
       <div style={{ width: "100%", height: "600px", position: "relative" }}>
         <Orb
           hoverIntensity={0.5}
