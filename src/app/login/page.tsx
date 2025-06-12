@@ -4,6 +4,7 @@ import { fetch } from "@tauri-apps/plugin-http";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import Orb from "@/components/Orb/Orb";
 
 interface LoginResponse {
   access_token: string;
@@ -58,14 +59,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-300 flex flex-col items-center justify-center p-8">
-      {/* Logo */}
-      <div className="mb-16">
-        <h1 className="text-6xl font-bold text-black tracking-wider">LOGO</h1>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 relative overflow-hidden">
+      {/* Orb Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <Orb
+            hoverIntensity={5}
+            rotateOnHover={true}
+            hue={0}
+            forceHoverState={true}
+          />
+        </div>
       </div>
 
-      {/* Login Form Card */}
-      <div className="w-full max-w-md">
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Logo */}
+        <div className="mb-16 text-center">
+          <h1 className="text-6xl font-bold text-white tracking-wider">LOGO</h1>
+        </div>
+
+        {/* Login Form Card */}
+        <div className="w-full max-w-md">
         <div className="bg-white rounded-3xl p-8 shadow-lg">
           <form
             onSubmit={(e) => {
@@ -198,6 +213,7 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+          </div>
         </div>
       </div>
     </div>
