@@ -158,7 +158,14 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-green-700 hover:bg-green-800 text-white font-medium py-4 px-6 rounded-full text-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full text-white font-medium py-4 px-6 rounded-full text-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: '#3B3F2D' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2d3122';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3B3F2D';
+                }}
               >
                 {isLoading ? "登入中..." : "登入"}
               </button>
