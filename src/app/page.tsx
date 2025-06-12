@@ -1,11 +1,11 @@
 "use client";
-import Orb from "@/components/Orb";
 import { RoundedButton } from "@/components/RoundedButton";
-import { invoke } from "@tauri-apps/api/core";
+import { ICONS } from "@/constants/icons";
 import { auth } from "@/utils/auth";
+import { invoke } from "@tauri-apps/api/core";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
   const [greeted, setGreeted] = useState<string | null>(null);
@@ -59,18 +59,10 @@ export default function Home() {
           </Link>
         )}
       </div>
-      <div style={{ width: "100%", height: "600px", position: "relative" }}>
-        <Orb
-          hoverIntensity={0.5}
-          rotateOnHover={true}
-          hue={0}
-          forceHoverState={false}
-        />
-      </div>
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"
-          src="/next.svg"
+          src={ICONS.brands.next}
           alt="Next.js logo"
           width={180}
           height={38}
@@ -106,7 +98,7 @@ export default function Home() {
         >
           <Image
             aria-hidden
-            src="/file.svg"
+            src={ICONS.ui.file}
             alt="File icon"
             width={16}
             height={16}
@@ -121,7 +113,7 @@ export default function Home() {
         >
           <Image
             aria-hidden
-            src="/window.svg"
+            src={ICONS.ui.window}
             alt="Window icon"
             width={16}
             height={16}
@@ -136,7 +128,7 @@ export default function Home() {
         >
           <Image
             aria-hidden
-            src="/globe.svg"
+            src={ICONS.ui.globe}
             alt="Globe icon"
             width={16}
             height={16}

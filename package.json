@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check src/ && next lint",
+    "fix": "biome check --write src/ && biome format --write src/ && next lint --fix",
+    "typecheck": "tsc --noEmit",
     "tauri": "tauri"
   },
   "dependencies": {
