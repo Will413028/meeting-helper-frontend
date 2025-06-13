@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import {
   type CSSProperties,
   type HTMLAttributes,
-  type MutableRefObject,
+  type RefObject,
   forwardRef,
   useEffect,
   useMemo,
@@ -17,18 +17,18 @@ function useAnimationFrame(callback: () => void) {
       frameId = requestAnimationFrame(loop);
     };
     frameId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frameId);
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
   }, [callback]);
 }
 
-function useMousePositionRef(
-  containerRef: MutableRefObject<HTMLElement | null>,
-) {
+function useMousePositionRef(containerRef: RefObject<HTMLElement | null>) {
   const positionRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const updatePosition = (x: number, y: number) => {
-      if (containerRef?.current) {
+      if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         positionRef.current = { x: x - rect.left, y: y - rect.top };
       } else {
@@ -36,8 +36,9 @@ function useMousePositionRef(
       }
     };
 
-    const handleMouseMove = (ev: MouseEvent) =>
+    const handleMouseMove = (ev: MouseEvent) => {
       updatePosition(ev.clientX, ev.clientY);
+    };
     const handleTouchMove = (ev: TouchEvent) => {
       const touch = ev.touches[0];
       updatePosition(touch.clientX, touch.clientY);
@@ -58,7 +59,7 @@ interface VariableProximityProps extends HTMLAttributes<HTMLSpanElement> {
   label: string;
   fromFontVariationSettings: string;
   toFontVariationSettings: string;
-  containerRef: MutableRefObject<HTMLElement | null>;
+  containerRef: RefObject<HTMLElement | null>;
   radius?: number;
   falloff?: "linear" | "exponential" | "gaussian";
   className?: string;
@@ -125,14 +126,13 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>(
           return norm ** 2;
         case "gaussian":
           return Math.exp(-((distance / (radius / 2)) ** 2) / 2);
-        case "linear":
         default:
           return norm;
       }
     };
 
     useAnimationFrame(() => {
-      if (!containerRef?.current) return;
+      if (!containerRef.current) return;
       const { x, y } = mousePositionRef.current;
       if (lastPositionRef.current.x === x && lastPositionRef.current.y === y) {
         return;
@@ -189,7 +189,10 @@ const VariableProximity = forwardRef<HTMLSpanElement, VariableProximityProps>(
         {...restProps}
       >
         {words.map((word, wordIndex) => (
-          <span key={wordIndex} className="inline-block whitespace-nowrap">
+          <span
+            key={`word-${wordIndex}-${word}`}
+            className="inline-block whitespace-nowrap"
+          >
             {word.split("").map((letter) => {
               const currentLetterIndex = letterIndex++;
               return (

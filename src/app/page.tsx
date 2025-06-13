@@ -80,8 +80,12 @@ export default function Home() {
             height={38}
             className="h-auto w-auto"
             priority
-            onLoad={() => console.log("[DEBUG] Logo loaded successfully")}
-            onError={(e) => console.error("[DEBUG] Logo failed to load:", e)}
+            onLoad={() => {
+              console.log("[DEBUG] Logo loaded successfully");
+            }}
+            onError={(e) => {
+              console.error("[DEBUG] Logo failed to load:", e);
+            }}
           />
         </div>
 
