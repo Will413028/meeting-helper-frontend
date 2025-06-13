@@ -1,7 +1,7 @@
 export interface User {
   id: string;
   username: string;
-  email?: string;
+  role: string;
 }
 
 export const auth = {
@@ -21,6 +21,12 @@ export const auth = {
   // Check if user is authenticated
   isAuthenticated(): boolean {
     return this.getToken() !== null;
+  },
+
+  // Check if user is admin
+  isAdmin(): boolean {
+    const user = this.getUser();
+    return user?.username.toLowerCase() === "admin";
   },
 
   // Clear authentication data
