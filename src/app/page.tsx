@@ -181,13 +181,13 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
               <span className="text-white font-medium">
-                {user?.username?.charAt(0).toUpperCase() || "A"}
+                {user?.username.charAt(0).toUpperCase() ?? "A"}
               </span>
             </div>
             <div>
               <p className="text-white/90 text-sm font-medium">管理員</p>
               <p className="text-white/60 text-xs">
-                {user?.username || "Admin"}
+                {user?.username ?? "Admin"}
               </p>
             </div>
           </div>
@@ -217,22 +217,38 @@ export default function Home() {
             <div className="space-y-6">
               {/* Language Dropdown */}
               <div>
-                <label htmlFor="secondary-language" className="block text-gray-700 text-sm font-medium mb-2">
+                <label
+                  htmlFor="secondary-language"
+                  className="block text-gray-700 text-sm font-medium mb-2"
+                >
                   繁體中文
                 </label>
                 <div className="relative">
                   <select
                     id="secondary-language"
                     value={secondaryLanguage}
-                    onChange={(e) => setSecondaryLanguage(e.target.value)}
+                    onChange={(e) => {
+                      setSecondaryLanguage(e.target.value);
+                    }}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                   >
                     <option value="繁體中文">繁體中文</option>
                     <option value="英文">英文</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </div>
                 </div>
