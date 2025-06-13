@@ -1,9 +1,8 @@
 "use client";
-import VariableProximity from "@/components/VariableProximity/VariableProximity";
 import { auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -12,7 +11,6 @@ export default function Home() {
   const [primaryLanguage, setPrimaryLanguage] = useState("繁體中文（預設）");
   const [secondaryLanguage, setSecondaryLanguage] = useState("英文");
   const router = useRouter();
-  const containerRef = useRef(null);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -94,20 +92,13 @@ export default function Home() {
                 type="button"
                 className="flex items-center gap-3 text-white/90 hover:text-white w-full p-3 rounded-lg hover:bg-white/10 transition-colors"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                  />
-                </svg>
+                <Image
+                  src="/icons/ui/voice-line.svg"
+                  alt="Voice"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5 brightness-0 invert"
+                />
                 <span>逐字稿生成</span>
               </button>
             </li>
@@ -116,20 +107,13 @@ export default function Home() {
                 type="button"
                 className="flex items-center gap-3 text-white/70 hover:text-white w-full p-3 rounded-lg hover:bg-white/10 transition-colors"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                  />
-                </svg>
+                <Image
+                  src="/icons/ui/noto.svg"
+                  alt="Notes"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5 brightness-0 invert"
+                />
                 <span>逐字稿管理</span>
               </button>
             </li>
@@ -138,26 +122,13 @@ export default function Home() {
                 type="button"
                 className="flex items-center gap-3 text-white/70 hover:text-white w-full p-3 rounded-lg hover:bg-white/10 transition-colors"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+                <Image
+                  src="/icons/ui/settings.svg"
+                  alt="Settings"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5 brightness-0 invert"
+                />
                 <span>設定</span>
               </button>
             </li>
@@ -167,20 +138,13 @@ export default function Home() {
                 onClick={handleLogout}
                 className="flex items-center gap-3 text-white/70 hover:text-white w-full p-3 rounded-lg hover:bg-white/10 transition-colors"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
+                <Image
+                  src="/icons/ui/sign-out-bold.svg"
+                  alt="Sign out"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5 brightness-0 invert"
+                />
                 <span>登出</span>
               </button>
             </li>
@@ -210,23 +174,9 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <div
-              ref={containerRef}
-              style={{ position: "relative" }}
-              className="mb-4"
-            >
-              <VariableProximity
-                label={"智慧轉錄，更懂團隊溝通的節奏！"}
-                className={
-                  "variable-proximity-demo text-4xl font-bold text-white text-shadow"
-                }
-                fromFontVariationSettings="'wght' 400, 'opsz' 9"
-                toFontVariationSettings="'wght' 1000, 'opsz' 40"
-                containerRef={containerRef}
-                radius={100}
-                falloff="linear"
-              />
-            </div>
+            <h1 className="text-4xl font-bold text-white text-shadow mb-4">
+              智慧轉錄，更懂團隊溝通的節奏！
+            </h1>
             <p className="text-white/90 text-lg text-shadow">
               讓溝通不留遺漏，讓記憶有跡可循。
             </p>

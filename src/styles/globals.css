@@ -44,3 +44,8 @@ body {
 .dark .bg-enhanced {
   background-color: rgba(0, 0, 0, 0.85);
 }
+
+/* Noto Sans TC font class */
+.font-noto-sans-tc {
+  font-family: "Noto Sans TC", sans-serif;
+}
