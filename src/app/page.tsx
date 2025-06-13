@@ -1,8 +1,9 @@
 "use client";
+import VariableProximity from "@/components/VariableProximity/VariableProximity";
 import { auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -11,6 +12,7 @@ export default function Home() {
   const [primaryLanguage, setPrimaryLanguage] = useState("繁體中文（預設）");
   const [secondaryLanguage, setSecondaryLanguage] = useState("英文");
   const router = useRouter();
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -73,7 +75,16 @@ export default function Home() {
       {/* Sidebar */}
       <aside className="w-64 bg-gray-900/90 backdrop-blur-sm p-6 flex flex-col border-r border-gray-800">
         <div className="mb-8">
-          <h1 className="text-white text-2xl font-bold">SayWe</h1>
+          <Image
+            src="/logo.svg"
+            alt="SayWe Logo"
+            width={120}
+            height={38}
+            className="h-auto w-auto"
+            priority
+            onLoad={() => console.log("[DEBUG] Logo loaded successfully")}
+            onError={(e) => console.error("[DEBUG] Logo failed to load:", e)}
+          />
         </div>
 
         <nav className="flex-1">
@@ -199,9 +210,23 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4 text-shadow">
-              智慧轉錄，更懂團隊溝通的節奏！
-            </h1>
+            <div
+              ref={containerRef}
+              style={{ position: "relative" }}
+              className="mb-4"
+            >
+              <VariableProximity
+                label={"智慧轉錄，更懂團隊溝通的節奏！"}
+                className={
+                  "variable-proximity-demo text-4xl font-bold text-white text-shadow"
+                }
+                fromFontVariationSettings="'wght' 400, 'opsz' 9"
+                toFontVariationSettings="'wght' 1000, 'opsz' 40"
+                containerRef={containerRef}
+                radius={100}
+                falloff="linear"
+              />
+            </div>
             <p className="text-white/90 text-lg text-shadow">
               讓溝通不留遺漏，讓記憶有跡可循。
             </p>
@@ -217,12 +242,6 @@ export default function Home() {
             <div className="space-y-6">
               {/* Language Dropdown */}
               <div>
-                <label
-                  htmlFor="secondary-language"
-                  className="block text-gray-700 text-sm font-medium mb-2"
-                >
-                  繁體中文
-                </label>
                 <div className="relative">
                   <select
                     id="secondary-language"
@@ -232,7 +251,7 @@ export default function Home() {
                     }}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                   >
-                    <option value="繁體中文">繁體中文</option>
+                    <option value="繁體中文">繁體中文（預設）</option>
                     <option value="英文">英文</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
