@@ -446,9 +446,8 @@ export default function TranscriptsPage() {
           ) : (
             <div className="space-y-4">
               {transcripts.map((transcript) => (
-                <button
+                <div
                   key={transcript.id}
-                  type="button"
                   className={`w-full text-left bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${
                     selectedIds.has(transcript.id)
                       ? "ring-2 ring-blue-500 ring-opacity-50"
@@ -458,7 +457,7 @@ export default function TranscriptsPage() {
                     // Only navigate if not clicking on action buttons or checkboxes
                     const target = e.target as HTMLElement;
                     if (
-                      !target.closest("button:not([data-transcript-button])") &&
+                      !target.closest("button") &&
                       !target.closest("input[type='checkbox']") &&
                       !target.closest("label") &&
                       !isBatchMode
@@ -466,7 +465,23 @@ export default function TranscriptsPage() {
                       router.push(`/transcription?id=${transcript.id}`);
                     }
                   }}
-                  data-transcript-button
+                  // biome-ignore lint/a11y/useSemanticElements: <explanation>
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      const target = e.target as HTMLElement;
+                      if (
+                        !target.closest("button") &&
+                        !target.closest("input[type='checkbox']") &&
+                        !target.closest("label") &&
+                        !isBatchMode
+                      ) {
+                        e.preventDefault();
+                        router.push(`/transcription?id=${transcript.id}`);
+                      }
+                    }
+                  }}
                   aria-label={`View details for ${transcript.title}`}
                 >
                   <div className="flex items-center justify-between">
@@ -598,7 +613,7 @@ export default function TranscriptsPage() {
                       </div>
                     )}
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           )}
