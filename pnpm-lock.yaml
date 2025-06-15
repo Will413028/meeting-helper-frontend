@@ -32,6 +32,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      wavesurfer.js:
+        specifier: ^7.9.5
+        version: 7.9.5
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -2449,6 +2452,9 @@ packages:
         optional: true
       yaml:
         optional: true
+
+  wavesurfer.js@7.9.5:
+    resolution: {integrity: sha512-ioOG9chuAn0bF2NYYKkZtaxjcQK/hFskLg8ViLYbJHhWPk1N5wWtuqVhqeh2ZWT2SK3t0E8UkD7lLDLuZQQaSA==}
 
   which-boxed-primitive@1.1.1:
     resolution: {integrity: sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==}
@@ -4928,6 +4934,8 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.4.2
       lightningcss: 1.30.1
+
+  wavesurfer.js@7.9.5: {}
 
   which-boxed-primitive@1.1.1:
     dependencies:

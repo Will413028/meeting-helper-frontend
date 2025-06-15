@@ -4,6 +4,7 @@ import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import WaveSurfer from "wavesurfer.js";
 
 interface TranscriptionDetail {
   transcription_id: number;
@@ -55,9 +56,8 @@ export default function TranscriptionDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const audioRef = useRef<HTMLAudioElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number | null>(null);
+  const waveformRef = useRef<HTMLDivElement>(null);
+  const wavesurferRef = useRef<WaveSurfer | null>(null);
 
   // Get transcription ID from query parameters
   const transcriptionId = searchParams?.get("id") ?? null;
@@ -105,152 +105,88 @@ export default function TranscriptionDetailPage() {
     void fetchTranscriptionDetail();
   }, [isAuthenticated, transcriptionId, router]);
 
-  // Initialize audio element
+  // Initialize WaveSurfer
   useEffect(() => {
-    if (!audioRef.current || !transcriptionId) return;
+    if (!waveformRef.current || !transcriptionId) return;
 
-    const audio = audioRef.current;
-    audio.src = `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`;
+    // Create WaveSurfer instance
+    const wavesurfer = WaveSurfer.create({
+      container: waveformRef.current,
+      waveColor: "#e5e7eb",
+      progressColor: "#3b82f6",
+      cursorColor: "transparent",
+      barWidth: 3,
+      barGap: 2,
+      barRadius: 3,
+      height: 128,
+      normalize: true,
+      interact: true,
+      url: `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`,
+    });
 
-    const handleLoadStart = () => {
+    wavesurferRef.current = wavesurfer;
+
+    // Event handlers
+    wavesurfer.on("loading", () => {
       setIsAudioLoading(true);
-    };
-    const handleCanPlay = () => {
-      setIsAudioLoading(false);
-    };
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-    };
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-      drawWaveform();
-    };
-    const handleEnded = () => {
-      setIsPlaying(false);
-    };
+    });
 
-    audio.addEventListener("loadstart", handleLoadStart);
-    audio.addEventListener("canplay", handleCanPlay);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("ended", handleEnded);
+    wavesurfer.on("ready", () => {
+      setIsAudioLoading(false);
+      setDuration(wavesurfer.getDuration());
+    });
+
+    wavesurfer.on("timeupdate", (currentTime) => {
+      setCurrentTime(currentTime);
+    });
+
+    wavesurfer.on("finish", () => {
+      setIsPlaying(false);
+    });
+
+    wavesurfer.on("play", () => {
+      setIsPlaying(true);
+    });
+
+    wavesurfer.on("pause", () => {
+      setIsPlaying(false);
+    });
+
+    // Load the audio
+    void wavesurfer.load(
+      `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`,
+    );
 
     return () => {
-      audio.removeEventListener("loadstart", handleLoadStart);
-      audio.removeEventListener("canplay", handleCanPlay);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("ended", handleEnded);
+      wavesurfer.destroy();
     };
   }, [transcriptionId]);
 
-  // Draw waveform visualization
-  const drawWaveform = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Set canvas size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const barWidth = 3;
-    const barGap = 2;
-    const barCount = Math.floor(width / (barWidth + barGap));
-
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-
-    // Generate random waveform data (in a real app, this would be actual audio data)
-    for (let i = 0; i < barCount; i++) {
-      const barHeight = Math.random() * height * 0.8 + height * 0.1;
-      const x = i * (barWidth + barGap);
-      const y = (height - barHeight) / 2;
-
-      // Draw bar
-      ctx.fillStyle = "#e5e7eb";
-      ctx.fillRect(x, y, barWidth, barHeight);
-    }
-  }, []);
-
-  // Update waveform progress
-  const updateWaveformProgress = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !audioRef.current) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const progress = audioRef.current.currentTime / audioRef.current.duration;
-    const progressWidth = width * progress;
-
-    // Redraw waveform
-    drawWaveform();
-
-    // Draw progress overlay
-    ctx.save();
-    ctx.globalCompositeOperation = "source-atop";
-    ctx.fillStyle = "#3b82f6";
-    ctx.fillRect(0, 0, progressWidth, height);
-    ctx.restore();
-  }, [drawWaveform]);
-
-  // Animation loop for smooth progress updates
-  useEffect(() => {
-    const animate = () => {
-      updateWaveformProgress();
-      if (progressRef.current && audioRef.current) {
-        const progress =
-          (audioRef.current.currentTime / audioRef.current.duration) * 100;
-        progressRef.current.style.width = `${progress}%`;
-      }
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    if (isPlaying) {
-      animate();
-    } else {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    }
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [isPlaying, updateWaveformProgress]);
-
   const handlePlayPause = () => {
-    if (!audioRef.current) return;
+    if (!wavesurferRef.current) return;
 
     if (isPlaying) {
-      audioRef.current.pause();
+      wavesurferRef.current.pause();
     } else {
-      void audioRef.current.play();
+      void wavesurferRef.current.play();
     }
-    setIsPlaying(!isPlaying);
   };
 
-  const handleSeek = (
-    e: React.MouseEvent<HTMLDivElement | HTMLCanvasElement>,
-  ) => {
-    if (!audioRef.current) return;
+  const handleRewind = () => {
+    if (!wavesurferRef.current) return;
+    const currentTime = wavesurferRef.current.getCurrentTime();
+    wavesurferRef.current.seekTo(
+      Math.max(0, currentTime - 10) / wavesurferRef.current.getDuration(),
+    );
+  };
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percentage = x / rect.width;
-    const newTime = percentage * audioRef.current.duration;
-
-    audioRef.current.currentTime = newTime;
-    setCurrentTime(newTime);
+  const handleForward = () => {
+    if (!wavesurferRef.current) return;
+    const currentTime = wavesurferRef.current.getCurrentTime();
+    const duration = wavesurferRef.current.getDuration();
+    wavesurferRef.current.seekTo(
+      Math.min(duration, currentTime + 10) / duration,
+    );
   };
 
   const handleLogout = () => {
@@ -399,53 +335,11 @@ export default function TranscriptionDetailPage() {
           <div className="bg-white rounded-lg p-6 shadow-sm">
             {/* Waveform */}
             <div className="mb-6">
-              <canvas
-                ref={canvasRef}
-                className="w-full h-32 cursor-pointer"
-                onClick={handleSeek}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const mockEvent = {
-                      clientX: rect.left + rect.width / 2,
-                      currentTarget: e.currentTarget,
-                    } as React.MouseEvent<HTMLCanvasElement>;
-                    handleSeek(mockEvent);
-                  }
-                }}
-                tabIndex={0}
-                role="slider"
-                aria-label="Audio progress"
-                aria-valuemin={0}
-                aria-valuemax={duration}
-                aria-valuenow={currentTime}
-              />
               <div
-                className="relative h-2 bg-gray-200 rounded-full mt-4 cursor-pointer"
-                onClick={handleSeek}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const mockEvent = {
-                      clientX: rect.left + rect.width / 2,
-                      currentTarget: e.currentTarget,
-                    } as React.MouseEvent<HTMLDivElement>;
-                    handleSeek(mockEvent);
-                  }
-                }}
-                tabIndex={0}
-                role="slider"
-                aria-label="Audio progress bar"
-                aria-valuemin={0}
-                aria-valuemax={Math.floor(duration)}
-                aria-valuenow={Math.floor(currentTime)}
-              >
-                <div
-                  ref={progressRef}
-                  className="absolute top-0 left-0 h-full bg-blue-600 rounded-full transition-none"
-                  style={{ width: "0%" }}
-                />
-              </div>
+                ref={waveformRef}
+                className="w-full"
+                style={{ minHeight: "128px" }}
+              />
             </div>
 
             {/* Time Display */}
@@ -459,14 +353,7 @@ export default function TranscriptionDetailPage() {
               <button
                 type="button"
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                onClick={() => {
-                  if (audioRef.current) {
-                    audioRef.current.currentTime = Math.max(
-                      0,
-                      audioRef.current.currentTime - 10,
-                    );
-                  }
-                }}
+                onClick={handleRewind}
               >
                 <Image
                   src="/icons/ui/left.svg"
@@ -513,14 +400,7 @@ export default function TranscriptionDetailPage() {
               <button
                 type="button"
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                onClick={() => {
-                  if (audioRef.current) {
-                    audioRef.current.currentTime = Math.min(
-                      audioRef.current.duration,
-                      audioRef.current.currentTime + 10,
-                    );
-                  }
-                }}
+                onClick={handleForward}
               >
                 <Image
                   src="/icons/ui/right.svg"
@@ -531,11 +411,6 @@ export default function TranscriptionDetailPage() {
                 />
               </button>
             </div>
-
-            {/* Hidden Audio Element */}
-            <audio ref={audioRef}>
-              <track kind="captions" />
-            </audio>
           </div>
         </div>
       </main>
