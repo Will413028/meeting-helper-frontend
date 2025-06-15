@@ -170,7 +170,9 @@ export default function TranscriptsPage() {
       }
     }, 500);
 
-    return () => { clearTimeout(debounceTimer); };
+    return () => {
+      clearTimeout(debounceTimer);
+    };
   }, [searchQuery, isAuthenticated, fetchTranscriptions]);
 
   const handleLogout = () => {
@@ -191,8 +193,8 @@ export default function TranscriptsPage() {
   };
 
   const handleMore = (id: string) => {
-    // TODO: Implement more options functionality
-    console.log("More options for transcript:", id);
+    // Navigate to transcription detail page with query parameter
+    router.push(`/transcription?id=${id}`);
   };
 
   const handleUpload = () => {
@@ -446,35 +448,65 @@ export default function TranscriptsPage() {
               {transcripts.map((transcript) => (
                 <div
                   key={transcript.id}
-                  className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all ${
+                  className={`w-full text-left bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${
                     selectedIds.has(transcript.id)
                       ? "ring-2 ring-blue-500 ring-opacity-50"
                       : ""
                   }`}
+                  onClick={(e) => {
+                    // Only navigate if not clicking on action buttons or checkboxes
+                    const target = e.target as HTMLElement;
+                    if (
+                      !target.closest("button") &&
+                      !target.closest("input[type='checkbox']") &&
+                      !target.closest("label") &&
+                      !isBatchMode
+                    ) {
+                      router.push(`/transcription?id=${transcript.id}`);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      if (!isBatchMode) {
+                        router.push(`/transcription?id=${transcript.id}`);
+                      }
+                    }
+                  }}
+                  aria-label={`View details for ${transcript.title}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 flex-1">
                       {/* Checkbox - Only show in batch mode */}
                       {isBatchMode && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            handleSelectItem(transcript.id);
-                          }}
-                          className="p-0"
-                        >
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(transcript.id)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleSelectItem(transcript.id);
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                            className="sr-only"
+                            aria-label={`Select ${transcript.title}`}
+                          />
                           <Image
                             src={
                               selectedIds.has(transcript.id)
                                 ? "/icons/ui/Checkboxes-selected.svg"
                                 : "/icons/ui/Checkboxes-default.svg"
                             }
-                            alt="Select"
+                            alt=""
                             width={20}
                             height={20}
                             className="w-5 h-5"
                           />
-                        </button>
+                        </label>
                       )}
 
                       {/* Audio Icon and Duration */}
@@ -519,11 +551,13 @@ export default function TranscriptsPage() {
                       <div className="flex items-center gap-2 ml-4">
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             handleDelete(transcript.id);
                           }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                           title="刪除"
+                          aria-label="刪除"
                         >
                           <Image
                             src="/icons/ui/del.svg"
@@ -535,11 +569,13 @@ export default function TranscriptsPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             handleDownload(transcript.id);
                           }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                           title="下載"
+                          aria-label="下載"
                         >
                           <Image
                             src="/icons/ui/download.svg"
@@ -551,11 +587,13 @@ export default function TranscriptsPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             handleMore(transcript.id);
                           }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                           title="更多"
+                          aria-label="更多"
                         >
                           <Image
                             src="/icons/ui/arrow-right-linear.svg"
@@ -585,7 +623,9 @@ export default function TranscriptsPage() {
             <div className="flex justify-center items-center gap-2 mt-8">
               <button
                 type="button"
-                onClick={() => { handlePageChange(currentPage - 1); }}
+                onClick={() => {
+                  handlePageChange(currentPage - 1);
+                }}
                 disabled={currentPage === 1}
                 className={`p-2 rounded-lg transition-colors ${
                   currentPage === 1
@@ -619,7 +659,9 @@ export default function TranscriptsPage() {
                     <button
                       key={pageNum}
                       type="button"
-                      onClick={() => { handlePageChange(pageNum); }}
+                      onClick={() => {
+                        handlePageChange(pageNum);
+                      }}
                       className={`px-3 py-1 rounded-lg transition-colors ${
                         currentPage === pageNum
                           ? "bg-blue-600 text-white"
@@ -634,7 +676,9 @@ export default function TranscriptsPage() {
 
               <button
                 type="button"
-                onClick={() => { handlePageChange(currentPage + 1); }}
+                onClick={() => {
+                  handlePageChange(currentPage + 1);
+                }}
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-lg transition-colors ${
                   currentPage === totalPages
