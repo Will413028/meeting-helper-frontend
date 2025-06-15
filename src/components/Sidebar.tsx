@@ -1,11 +1,11 @@
 "use client";
-import { auth } from "@/utils/auth";
+import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface SidebarProps {
-  user: { username: string } | null;
+  user: User | null;
   onLogout?: () => void;
   activeItem?: "transcribe" | "manage" | "settings";
 }
@@ -113,12 +113,14 @@ export default function Sidebar({
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
             <span className="text-white font-medium">
-              {user?.username.charAt(0).toUpperCase() ?? "A"}
+              {user?.userName.charAt(0).toUpperCase() ?? "A"}
             </span>
           </div>
           <div>
-            <p className="text-white/90 text-sm font-medium">管理員</p>
-            <p className="text-white/60 text-xs">{user?.username ?? "Admin"}</p>
+            <p className="text-white/90 text-sm font-medium">
+              {user?.groupName}
+            </p>
+            <p className="text-white/60 text-xs">{user?.userName}</p>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 export interface User {
   id: string;
-  username: string;
+  userName: string;
+  groupName: string;
   role: string;
 }
 
@@ -26,7 +27,7 @@ export const auth = {
   // Check if user is admin
   isAdmin(): boolean {
     const user = this.getUser();
-    return user?.username.toLowerCase() === "admin";
+    return user?.role.toLowerCase() === "admin";
   },
 
   // Clear authentication data

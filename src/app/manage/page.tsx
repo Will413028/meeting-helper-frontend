@@ -1,6 +1,6 @@
 "use client";
 import Sidebar from "@/components/Sidebar";
-import { auth } from "@/utils/auth";
+import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,7 +23,7 @@ interface Transcript {
 
 export default function TranscriptsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ username: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [diskSpace, setDiskSpace] = useState<DiskSpace | null>(null);
   const [searchQuery, setSearchQuery] = useState("");

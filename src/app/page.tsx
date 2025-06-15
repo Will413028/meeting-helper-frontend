@@ -1,13 +1,13 @@
 "use client";
 import Sidebar from "@/components/Sidebar";
-import { auth } from "@/utils/auth";
+import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ username: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [primaryLanguage, setPrimaryLanguage] = useState("繁體中文（預設）");
   const [secondaryLanguage, setSecondaryLanguage] = useState("英文");

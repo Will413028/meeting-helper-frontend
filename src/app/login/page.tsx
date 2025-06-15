@@ -8,6 +8,9 @@ import { type FormEvent, useState } from "react";
 
 interface LoginResponse {
   access_token: string;
+  group_name: string;
+  user_name: string;
+  role: string;
 }
 
 export default function LoginPage() {
@@ -39,9 +42,19 @@ export default function LoginPage() {
       const data = (await response.json()) as LoginResponse;
 
       if (response.ok && data.access_token) {
+        // Save auth token
         localStorage.setItem("authToken", data.access_token);
 
-        localStorage.setItem("user", JSON.stringify({ username }));
+        // Save complete user information with camelCase property names to match User interface
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: username, // Using username as id since API doesn't return a separate id
+            userName: data.user_name,
+            groupName: data.group_name,
+            role: data.role,
+          }),
+        );
 
         router.push("/");
       } else {
