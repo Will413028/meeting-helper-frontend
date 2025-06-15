@@ -3,7 +3,7 @@ import Sidebar from "@/components/Sidebar";
 import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface DiskSpace {
   total_gb: number;
@@ -21,6 +21,40 @@ interface Transcript {
   date: string;
 }
 
+interface TranscriptionApiResponse {
+  total_count: number;
+  total_pages: number;
+  current_page: number;
+  data: Array<{
+    transcription_id: number;
+    transcription_title: string;
+    tags: string[];
+    audio_duration: number;
+    created_at: string;
+  }>;
+}
+
+// Helper function to convert seconds to HH:MM:SS format
+const formatDuration = (seconds: number): string => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  return [hours, minutes, secs]
+    .map((val) => val.toString().padStart(2, "0"))
+    .join(":");
+};
+
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  return `${year}/${month}/${day}`;
+};
+
 export default function TranscriptsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -29,50 +63,12 @@ export default function TranscriptsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBatchMode, setIsBatchMode] = useState(false);
-  const [transcripts, setTranscripts] = useState<Transcript[]>([
-    {
-      id: "1",
-      title: "影音檔1",
-      duration: "00:15:05",
-      tags: ["#會議", "#開發部門", "#專案", "#報價", "#系統"],
-      date: "2025/4/30",
-    },
-    {
-      id: "2",
-      title: "影音檔2",
-      duration: "00:15:05",
-      tags: ["#財務管理", "#分帳", "#年度管理", "#會計"],
-      date: "2025/4/30",
-    },
-    {
-      id: "3",
-      title: "影音檔2",
-      duration: "00:15:05",
-      tags: ["#財務管理", "#分帳", "#年度管理", "#會計"],
-      date: "2025/4/30",
-    },
-    {
-      id: "4",
-      title: "影音檔2",
-      duration: "00:15:05",
-      tags: ["#財務管理", "#分帳", "#年度管理", "#會計"],
-      date: "2025/4/30",
-    },
-    {
-      id: "5",
-      title: "影音檔2",
-      duration: "00:15:05",
-      tags: ["#財務管理", "#分帳", "#年度管理", "#會計"],
-      date: "2025/4/30",
-    },
-    {
-      id: "6",
-      title: "影音檔2",
-      duration: "00:15:05",
-      tags: ["#財務管理", "#分帳", "#年度管理", "#會計"],
-      date: "2025/4/30",
-    },
-  ]);
+  const [transcripts, setTranscripts] = useState<Transcript[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoadingTranscripts, setIsLoadingTranscripts] = useState(false);
+  const pageSize = 10;
   const router = useRouter();
 
   useEffect(() => {
@@ -112,6 +108,71 @@ export default function TranscriptsPage() {
     }
   }, [isAuthenticated]);
 
+  // Fetch transcriptions from API
+  const fetchTranscriptions = useCallback(
+    async (page: number, name?: string) => {
+      setIsLoadingTranscripts(true);
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          page_size: pageSize.toString(),
+        });
+
+        if (name) {
+          params.append("name", name);
+        }
+
+        const response = await fetch(
+          `http://114.34.174.244:8701/api/v1/transcriptions?${params.toString()}`,
+        );
+
+        if (response.ok) {
+          const data = (await response.json()) as TranscriptionApiResponse;
+
+          // Transform API data to match Transcript interface
+          const transformedTranscripts: Transcript[] = data.data.map(
+            (item) => ({
+              id: item.transcription_id.toString(),
+              title: item.transcription_title,
+              duration: formatDuration(item.audio_duration),
+              tags: item.tags.map((tag) => `#${tag}`),
+              date: formatDate(item.created_at),
+            }),
+          );
+
+          setTranscripts(transformedTranscripts);
+          setCurrentPage(data.current_page);
+          setTotalPages(data.total_pages);
+          setTotalCount(data.total_count);
+        }
+      } catch (error) {
+        console.error("Failed to fetch transcriptions:", error);
+      } finally {
+        setIsLoadingTranscripts(false);
+      }
+    },
+    [],
+  );
+
+  // Fetch transcriptions when authenticated or page changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      void fetchTranscriptions(currentPage, searchQuery);
+    }
+  }, [isAuthenticated, currentPage, searchQuery, fetchTranscriptions]);
+
+  // Debounced search
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (isAuthenticated) {
+        setCurrentPage(1); // Reset to first page when searching
+        void fetchTranscriptions(1, searchQuery);
+      }
+    }, 500);
+
+    return () => { clearTimeout(debounceTimer); };
+  }, [searchQuery, isAuthenticated, fetchTranscriptions]);
+
   const handleLogout = () => {
     auth.logout();
     setIsAuthenticated(false);
@@ -140,12 +201,12 @@ export default function TranscriptsPage() {
   };
 
   const handleSelectAll = () => {
-    if (selectedIds.size === filteredTranscripts.length) {
+    if (selectedIds.size === transcripts.length) {
       // If all are selected, deselect all
       setSelectedIds(new Set());
     } else {
-      // Select all filtered transcripts
-      const allIds = new Set(filteredTranscripts.map((t) => t.id));
+      // Select all transcripts on current page
+      const allIds = new Set(transcripts.map((t) => t.id));
       setSelectedIds(allIds);
     }
   };
@@ -183,14 +244,11 @@ export default function TranscriptsPage() {
     setSelectedIds(new Set());
   };
 
-  // Filter transcripts based on search query
-  const filteredTranscripts = transcripts.filter((transcript) => {
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      transcript.title.toLowerCase().includes(searchLower) ||
-      transcript.tags.some((tag) => tag.toLowerCase().includes(searchLower))
-    );
-  });
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -228,7 +286,11 @@ export default function TranscriptsPage() {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-red-500 to-red-600 h-full rounded-full transition-all duration-500"
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    diskSpace.percent_used > 80
+                      ? "bg-gradient-to-r from-red-500 to-red-600"
+                      : "bg-gradient-to-r from-blue-500 to-blue-600"
+                  }`}
                   style={{ width: `${diskSpace.percent_used}%` }}
                 />
               </div>
@@ -350,7 +412,7 @@ export default function TranscriptsPage() {
           </div>
 
           {/* Select All Checkbox - Only show in batch mode */}
-          {isBatchMode && filteredTranscripts.length > 0 && (
+          {isBatchMode && transcripts.length > 0 && (
             <div className="flex items-center gap-2 mb-4">
               <button
                 type="button"
@@ -359,8 +421,8 @@ export default function TranscriptsPage() {
               >
                 <Image
                   src={
-                    selectedIds.size === filteredTranscripts.length &&
-                    filteredTranscripts.length > 0
+                    selectedIds.size === transcripts.length &&
+                    transcripts.length > 0
                       ? "/icons/ui/Checkboxes-selected.svg"
                       : "/icons/ui/Checkboxes-default.svg"
                   }
@@ -375,140 +437,228 @@ export default function TranscriptsPage() {
           )}
 
           {/* Transcripts List */}
-          <div className="space-y-4">
-            {filteredTranscripts.map((transcript) => (
-              <div
-                key={transcript.id}
-                className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all ${
-                  selectedIds.has(transcript.id)
-                    ? "ring-2 ring-blue-500 ring-opacity-50"
-                    : ""
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    {/* Checkbox - Only show in batch mode */}
-                    {isBatchMode && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleSelectItem(transcript.id);
-                        }}
-                        className="p-0"
-                      >
-                        <Image
-                          src={
-                            selectedIds.has(transcript.id)
-                              ? "/icons/ui/Checkboxes-selected.svg"
-                              : "/icons/ui/Checkboxes-default.svg"
-                          }
-                          alt="Select"
-                          width={20}
-                          height={20}
-                          className="w-5 h-5"
-                        />
-                      </button>
-                    )}
+          {isLoadingTranscripts ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="text-gray-600">載入中...</div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {transcripts.map((transcript) => (
+                <div
+                  key={transcript.id}
+                  className={`bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all ${
+                    selectedIds.has(transcript.id)
+                      ? "ring-2 ring-blue-500 ring-opacity-50"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1">
+                      {/* Checkbox - Only show in batch mode */}
+                      {isBatchMode && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleSelectItem(transcript.id);
+                          }}
+                          className="p-0"
+                        >
+                          <Image
+                            src={
+                              selectedIds.has(transcript.id)
+                                ? "/icons/ui/Checkboxes-selected.svg"
+                                : "/icons/ui/Checkboxes-default.svg"
+                            }
+                            alt="Select"
+                            width={20}
+                            height={20}
+                            className="w-5 h-5"
+                          />
+                        </button>
+                      )}
 
-                    {/* Audio Icon and Duration */}
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/icons/ui/voice-line.svg"
-                        alt="Audio"
-                        width={24}
-                        height={24}
-                        className="w-6 h-6 text-gray-400"
-                      />
+                      {/* Audio Icon and Duration */}
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src="/icons/ui/voice-line.svg"
+                          alt="Audio"
+                          width={24}
+                          height={24}
+                          className="w-6 h-6 text-gray-400"
+                        />
+                        <span className="text-gray-500 text-sm">
+                          {transcript.duration}
+                        </span>
+                      </div>
+
+                      {/* Title and Tags */}
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 mb-1">
+                          {transcript.title}
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {transcript.tags.map((tag) => (
+                            <span
+                              key={`${transcript.id}-${tag}`}
+                              className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Date */}
                       <span className="text-gray-500 text-sm">
-                        {transcript.duration}
+                        {transcript.date}
                       </span>
                     </div>
 
-                    {/* Title and Tags */}
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 mb-1">
-                        {transcript.title}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {transcript.tags.map((tag) => (
-                          <span
-                            key={`${transcript.id}-${tag}`}
-                            className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                    {/* Action Buttons - Only show when not in batch mode */}
+                    {!isBatchMode && (
+                      <div className="flex items-center gap-2 ml-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleDelete(transcript.id);
+                          }}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          title="刪除"
+                        >
+                          <Image
+                            src="/icons/ui/del.svg"
+                            alt="Delete"
+                            width={20}
+                            height={20}
+                            className="w-5 h-5"
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleDownload(transcript.id);
+                          }}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          title="下載"
+                        >
+                          <Image
+                            src="/icons/ui/download.svg"
+                            alt="Download"
+                            width={20}
+                            height={20}
+                            className="w-5 h-5"
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleMore(transcript.id);
+                          }}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          title="更多"
+                        >
+                          <Image
+                            src="/icons/ui/arrow-right-linear.svg"
+                            alt="More"
+                            width={20}
+                            height={20}
+                            className="w-5 h-5"
+                          />
+                        </button>
                       </div>
-                    </div>
-
-                    {/* Date */}
-                    <span className="text-gray-500 text-sm">
-                      {transcript.date}
-                    </span>
+                    )}
                   </div>
-
-                  {/* Action Buttons - Only show when not in batch mode */}
-                  {!isBatchMode && (
-                    <div className="flex items-center gap-2 ml-4">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleDelete(transcript.id);
-                        }}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="刪除"
-                      >
-                        <Image
-                          src="/icons/ui/del.svg"
-                          alt="Delete"
-                          width={20}
-                          height={20}
-                          className="w-5 h-5"
-                        />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleDownload(transcript.id);
-                        }}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="下載"
-                      >
-                        <Image
-                          src="/icons/ui/download.svg"
-                          alt="Download"
-                          width={20}
-                          height={20}
-                          className="w-5 h-5"
-                        />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleMore(transcript.id);
-                        }}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="更多"
-                      >
-                        <Image
-                          src="/icons/ui/arrow-right-linear.svg"
-                          alt="More"
-                          width={20}
-                          height={20}
-                          className="w-5 h-5"
-                        />
-                      </button>
-                    </div>
-                  )}
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Empty State */}
-          {filteredTranscripts.length === 0 && (
+          {!isLoadingTranscripts && transcripts.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500">沒有找到符合的逐字稿</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-8">
+              <button
+                type="button"
+                onClick={() => { handlePageChange(currentPage - 1); }}
+                disabled={currentPage === 1}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <Image
+                  src="/icons/ui/left.svg"
+                  alt="Previous"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => { handlePageChange(pageNum); }}
+                      className={`px-3 py-1 rounded-lg transition-colors ${
+                        currentPage === pageNum
+                          ? "bg-blue-600 text-white"
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => { handlePageChange(currentPage + 1); }}
+                disabled={currentPage === totalPages}
+                className={`p-2 rounded-lg transition-colors ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <Image
+                  src="/icons/ui/right.svg"
+                  alt="Next"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
+              </button>
+            </div>
+          )}
+
+          {/* Page Info */}
+          {totalCount > 0 && (
+            <div className="text-center mt-4 text-sm text-gray-600">
+              顯示 {(currentPage - 1) * pageSize + 1} -{" "}
+              {Math.min(currentPage * pageSize, totalCount)} 筆，共 {totalCount}{" "}
+              筆
             </div>
           )}
         </div>
