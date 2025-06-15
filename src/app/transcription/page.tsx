@@ -60,7 +60,7 @@ export default function TranscriptionDetailPage() {
   const animationRef = useRef<number | null>(null);
 
   // Get transcription ID from query parameters
-  const transcriptionId = searchParams?.get('id') || null;
+  const transcriptionId = searchParams?.get("id") ?? null;
 
   useEffect(() => {
     const checkAuth = () => {

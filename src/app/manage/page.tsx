@@ -446,8 +446,9 @@ export default function TranscriptsPage() {
           ) : (
             <div className="space-y-4">
               {transcripts.map((transcript) => (
-                <div
+                <button
                   key={transcript.id}
+                  type="button"
                   className={`w-full text-left bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${
                     selectedIds.has(transcript.id)
                       ? "ring-2 ring-blue-500 ring-opacity-50"
@@ -457,7 +458,7 @@ export default function TranscriptsPage() {
                     // Only navigate if not clicking on action buttons or checkboxes
                     const target = e.target as HTMLElement;
                     if (
-                      !target.closest("button") &&
+                      !target.closest("button:not([data-transcript-button])") &&
                       !target.closest("input[type='checkbox']") &&
                       !target.closest("label") &&
                       !isBatchMode
@@ -465,16 +466,7 @@ export default function TranscriptsPage() {
                       router.push(`/transcription?id=${transcript.id}`);
                     }
                   }}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      if (!isBatchMode) {
-                        router.push(`/transcription?id=${transcript.id}`);
-                      }
-                    }
-                  }}
+                  data-transcript-button
                   aria-label={`View details for ${transcript.title}`}
                 >
                   <div className="flex items-center justify-between">
@@ -555,7 +547,7 @@ export default function TranscriptsPage() {
                             e.stopPropagation();
                             handleDelete(transcript.id);
                           }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           title="刪除"
                           aria-label="刪除"
                         >
@@ -573,7 +565,7 @@ export default function TranscriptsPage() {
                             e.stopPropagation();
                             handleDownload(transcript.id);
                           }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           title="下載"
                           aria-label="下載"
                         >
@@ -591,7 +583,7 @@ export default function TranscriptsPage() {
                             e.stopPropagation();
                             handleMore(transcript.id);
                           }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           title="更多"
                           aria-label="更多"
                         >
@@ -606,7 +598,7 @@ export default function TranscriptsPage() {
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
