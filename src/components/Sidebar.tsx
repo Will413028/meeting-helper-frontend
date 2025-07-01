@@ -1,8 +1,8 @@
 "use client";
-import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { auth, type User } from "@/utils/auth";
 
 interface SidebarProps {
   user: User | null;

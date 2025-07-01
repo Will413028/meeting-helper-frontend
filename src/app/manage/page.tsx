@@ -1,9 +1,9 @@
 "use client";
-import Sidebar from "@/components/Sidebar";
-import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import Sidebar from "@/components/Sidebar";
+import { auth, type User } from "@/utils/auth";
 
 interface DiskSpace {
   total_gb: number;

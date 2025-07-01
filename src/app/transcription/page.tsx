@@ -1,10 +1,10 @@
 "use client";
-import Sidebar from "@/components/Sidebar";
-import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
+import Sidebar from "@/components/Sidebar";
+import { auth, type User } from "@/utils/auth";
 
 interface TranscriptionDetail {
   transcription_id: number;

@@ -1,10 +1,10 @@
 "use client";
 
-import Sidebar from "@/components/Sidebar";
-import { auth } from "@/utils/auth";
-import type { User } from "@/utils/auth";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import Sidebar from "@/components/Sidebar";
+import type { User } from "@/utils/auth";
+import { auth } from "@/utils/auth";
 
 interface UserAccount {
   id: string;
