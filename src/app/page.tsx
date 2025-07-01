@@ -107,7 +107,7 @@ export default function Home() {
       );
 
       const response = await fetch(
-        "http://114.34.174.244:8701/api/v1/transcribe/async",
+        "http://114.34.174.244:8701/api/v1/transcribe",
         {
           method: "POST",
           body: formData,
