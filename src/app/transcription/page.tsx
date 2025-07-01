@@ -3,7 +3,7 @@ import Sidebar from "@/components/Sidebar";
 import { type User, auth } from "@/utils/auth";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 
 interface TranscriptionDetail {
@@ -55,7 +55,6 @@ export default function TranscriptionDetailPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const audioRef = useRef<HTMLAudioElement>(null);
   const waveformRef = useRef<HTMLDivElement>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
 

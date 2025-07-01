@@ -9,11 +9,9 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [primaryLanguage, setPrimaryLanguage] = useState("繁體中文（預設）");
   const [secondaryLanguage, setSecondaryLanguage] = useState("英文");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -96,8 +94,6 @@ export default function Home() {
     }
 
     setIsUploading(true);
-    setUploadProgress(0);
-
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
@@ -134,7 +130,6 @@ export default function Home() {
       alert(`上傳失敗: ${error instanceof Error ? error.message : "未知錯誤"}`);
     } finally {
       setIsUploading(false);
-      setUploadProgress(0);
     }
   };
 
