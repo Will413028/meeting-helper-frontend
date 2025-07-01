@@ -22,6 +22,12 @@
       },
       "a11y": {
         "useSemanticElements": "off"
+      },
+      "style": {
+        "useImportType": "off"
+      },
+      "nursery": {
+        "useSortedClasses": "off"
       }
     }
   },
