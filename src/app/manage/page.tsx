@@ -465,7 +465,6 @@ export default function TranscriptsPage() {
                       router.push(`/transcription?id=${transcript.id}`);
                     }
                   }}
-                  // biome-ignore lint/a11y/useSemanticElements: Using div with role for better styling control
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {

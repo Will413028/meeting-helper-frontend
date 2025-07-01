@@ -19,6 +19,9 @@
       "recommended": true,
       "correctness": {
         "useHookAtTopLevel": "error"
+      },
+      "a11y": {
+        "useSemanticElements": "off"
       }
     }
   },
