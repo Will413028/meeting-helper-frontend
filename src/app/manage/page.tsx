@@ -134,8 +134,8 @@ export default function TranscriptsPage() {
             (item) => ({
               id: item.transcription_id.toString(),
               title: item.transcription_title,
-              duration: formatDuration(item.audio_duration),
-              tags: item.tags.map((tag) => `#${tag}`),
+              duration: item.audio_duration ? formatDuration(item.audio_duration) : "0:00",
+              tags: item.tags ? item.tags.map((tag) => `#${tag}`) : [],
               date: formatDate(item.created_at),
             }),
           );

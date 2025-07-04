@@ -12,6 +12,8 @@ interface TranscriptionDetail {
   tags: string[];
   audio_duration: number;
   created_at: string;
+  summary?: string;
+  transcription_text?: string;
 }
 
 // Helper function to convert seconds to HH:MM:SS format
@@ -88,9 +90,11 @@ export default function TranscriptionDetailPage() {
         );
 
         if (response.ok) {
-          const data = (await response.json()) as { data: TranscriptionDetail };
-          setTranscription(data.data);
-          setDuration(data.data.audio_duration);
+          const result = await response.json();
+          // The API returns data in data.data structure
+          const transcriptionData = result.data?.data || result.data;
+          setTranscription(transcriptionData);
+          setDuration(transcriptionData.audio_duration);
         } else {
           console.error("Failed to fetch transcription details");
           router.push("/manage");
@@ -234,99 +238,96 @@ export default function TranscriptionDetailPage() {
       {/* Main Content */}
       <main className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
-          {/* Header with Back Button */}
-          <div className="flex items-center gap-4 mb-6">
-            <button
-              type="button"
-              onClick={handleBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Image
-                src="/icons/ui/left.svg"
-                alt="Back"
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-            </button>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {transcription.transcription_title}
-            </h1>
-          </div>
+          {/* Back Button */}
+          <button
+            type="button"
+            onClick={handleBack}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors mb-4"
+          >
+            <Image
+              src="/icons/ui/left.svg"
+              alt="Back"
+              width={24}
+              height={24}
+              className="w-6 h-6"
+            />
+          </button>
 
-          {/* Metadata */}
-          <div className="bg-white rounded-lg p-6 mb-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-6">
-                <div>
-                  <p className="text-sm text-gray-500">上傳時間</p>
-                  <p className="text-gray-900">
-                    {formatDate(transcription.created_at)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">音檔長度</p>
-                  <p className="text-gray-900">
-                    {formatDuration(transcription.audio_duration)}
-                  </p>
-                </div>
+          {/* Title */}
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+            {transcription.transcription_title}
+          </h1>
+
+          {/* Metadata - Not in white box */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">上傳時間</span>
+                <span className="text-gray-900">
+                  {formatDate(transcription.created_at)}
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleEdit}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="編輯"
-                >
-                  <Image
-                    src="/icons/ui/edit-line.svg"
-                    alt="Edit"
-                    width={20}
-                    height={20}
-                    className="w-5 h-5"
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDownload}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="下載"
-                >
-                  <Image
-                    src="/icons/ui/download.svg"
-                    alt="Download"
-                    width={20}
-                    height={20}
-                    className="w-5 h-5"
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="刪除"
-                >
-                  <Image
-                    src="/icons/ui/del.svg"
-                    alt="Delete"
-                    width={20}
-                    height={20}
-                    className="w-5 h-5"
-                  />
-                </button>
+                <span className="text-sm text-gray-500">音檔長度</span>
+                <span className="text-gray-900">
+                  {formatDuration(transcription.audio_duration)}
+                </span>
+              </div>
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2">
+                {transcription.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full"
+                  >
+                    #{tag}
+                  </span>
+                ))}
               </div>
             </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {transcription.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full"
-                >
-                  #{tag}
-                </span>
-              ))}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="編輯"
+              >
+                <Image
+                  src="/icons/ui/edit-line.svg"
+                  alt="Edit"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="下載"
+              >
+                <Image
+                  src="/icons/ui/download.svg"
+                  alt="Download"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="刪除"
+              >
+                <Image
+                  src="/icons/ui/del.svg"
+                  alt="Delete"
+                  width={20}
+                  height={20}
+                  className="w-5 h-5"
+                />
+              </button>
             </div>
           </div>
 
@@ -410,6 +411,29 @@ export default function TranscriptionDetailPage() {
                 />
               </button>
             </div>
+          </div>
+
+          {/* Summary and Transcription Section - Side by Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Summary Section - Left Side with Scroll */}
+            {transcription.summary && (
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">摘要</h2>
+                <div className="text-gray-700 whitespace-pre-wrap max-h-[600px] overflow-y-auto pr-2">
+                  {transcription.summary}
+                </div>
+              </div>
+            )}
+
+            {/* Transcription Text Section - Right Side with Scroll */}
+            {transcription.transcription_text && (
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">逐字稿</h2>
+                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto pr-2">
+                  {transcription.transcription_text}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
