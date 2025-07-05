@@ -90,11 +90,22 @@ export default function TranscriptionDetailPage() {
         );
 
         if (response.ok) {
-          const result = await response.json();
+          const result = (await response.json()) as {
+            data: { data?: TranscriptionDetail } | TranscriptionDetail;
+          };
           // The API returns data in data.data structure
-          const transcriptionData = result.data?.data || result.data;
-          setTranscription(transcriptionData);
-          setDuration(transcriptionData.audio_duration);
+          let transcriptionData: TranscriptionDetail | undefined;
+
+          if (typeof result.data === "object" && "data" in result.data) {
+            transcriptionData = result.data.data;
+          } else if ("transcription_id" in result.data) {
+            transcriptionData = result.data;
+          }
+
+          if (transcriptionData) {
+            setTranscription(transcriptionData);
+            setDuration(transcriptionData.audio_duration);
+          }
         } else {
           console.error("Failed to fetch transcription details");
           router.push("/manage");
@@ -111,7 +122,7 @@ export default function TranscriptionDetailPage() {
   // Initialize WaveSurfer function
   const initializeWaveSurfer = useCallback(() => {
     if (!waveformRef.current || !transcriptionId) {
-      console.log('Cannot initialize - missing ref or ID');
+      console.log("Cannot initialize - missing ref or ID");
       return;
     }
 
@@ -122,41 +133,47 @@ export default function TranscriptionDetailPage() {
         wavesurferRef.current = null;
       }
 
-      console.log('Initializing WaveSurfer...');
-      
+      console.log("Initializing WaveSurfer...");
+
       const ws = WaveSurfer.create({
         container: waveformRef.current,
-        waveColor: '#e5e7eb',
-        progressColor: '#3b82f6',
+        waveColor: "#e5e7eb",
+        progressColor: "#3b82f6",
         height: 128,
         barWidth: 3,
         barGap: 2,
         barRadius: 3,
       });
-      
+
       wavesurferRef.current = ws;
-      
-      ws.on('ready', () => {
-        console.log('WaveSurfer ready');
+
+      ws.on("ready", () => {
+        console.log("WaveSurfer ready");
         setIsAudioLoading(false);
         setDuration(ws.getDuration());
       });
-      
-      ws.on('error', (e) => {
-        console.error('WaveSurfer error:', e);
+
+      ws.on("error", (e) => {
+        console.error("WaveSurfer error:", e);
         setIsAudioLoading(false);
       });
-      
-      ws.on('play', () => setIsPlaying(true));
-      ws.on('pause', () => setIsPlaying(false));
-      ws.on('timeupdate', (time) => setCurrentTime(time));
-      
+
+      ws.on("play", () => {
+        setIsPlaying(true);
+      });
+      ws.on("pause", () => {
+        setIsPlaying(false);
+      });
+      ws.on("timeupdate", (time) => {
+        setCurrentTime(time);
+      });
+
       const url = `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`;
-      ws.load(url);
-      
-      console.log('WaveSurfer initialized successfully');
+      void ws.load(url);
+
+      console.log("WaveSurfer initialized successfully");
     } catch (error) {
-      console.error('Failed to initialize WaveSurfer:', error);
+      console.error("Failed to initialize WaveSurfer:", error);
     }
   }, [transcriptionId]);
 

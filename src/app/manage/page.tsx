@@ -28,7 +28,7 @@ interface TranscriptionApiResponse {
   data: Array<{
     transcription_id: number;
     transcription_title: string;
-    tags: string[];
+    tags: string[] | null;
     audio_duration: number;
     created_at: string;
   }>;
@@ -134,8 +134,10 @@ export default function TranscriptsPage() {
             (item) => ({
               id: item.transcription_id.toString(),
               title: item.transcription_title,
-              duration: item.audio_duration ? formatDuration(item.audio_duration) : "0:00",
-              tags: item.tags ? item.tags.map((tag) => `#${tag}`) : [],
+              duration: item.audio_duration
+                ? formatDuration(item.audio_duration)
+                : "0:00",
+              tags: item.tags?.map((tag) => `#${tag}`) ?? [],
               date: formatDate(item.created_at),
             }),
           );
