@@ -8,6 +8,24 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Button color variables */
+  --spacing-lg: 24px;
+  --corner-large: 16px;
+  --8181F3-60: rgba(129, 129, 243, 0.6);
+  --8181F3-40: rgba(129, 129, 243, 0.4);
+  --8181F3-20: rgba(129, 129, 243, 0.2);
+  --submitButton-default: linear-gradient(90deg, #565ab6 0%, #8181f3 90%);
+  --submitButton-hover: linear-gradient(90deg, #565ab6 0%, #b596e9 100%);
+  --iconButton-active: linear-gradient(
+    90deg,
+    rgba(51, 60, 140, 0.8) 0%,
+    rgba(129, 129, 243, 0.6) 100%
+  );
+
+  /* Gray color variables */
+  --Gray4: #b6b3ba;
+  --Gray5: #e6e4e8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,6 +66,54 @@ body {
 /* Noto Sans TC font class */
 .font-noto-sans-tc {
   font-family: "Noto Sans TC", sans-serif;
+}
+
+/* Custom button styles */
+@layer components {
+  .btn-submit-default {
+    display: inline-flex;
+    padding: 16px var(--spacing-lg, 24px);
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--corner-large, 16px);
+    @apply bg-gradient-to-r from-[#565AB6] to-[#8181F3] text-white transition-all duration-200;
+    @apply border border-[rgba(129,129,243,0.60)];
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 110%;
+  }
+
+  .btn-submit-default:not(:disabled):hover {
+    background: var(--submitButton-hover);
+    @apply text-white;
+  }
+
+  .btn-submit-default:not(:disabled):active {
+    @apply bg-gradient-to-r from-[rgba(51,60,140,0.80)] to-[rgba(129,129,243,0.60)];
+    @apply border-[rgba(129,129,243,0.40)] text-white;
+    @apply shadow-[inset_0_0_4px_0_rgba(181,150,233,0.40)];
+  }
+
+  .btn-submit-disabled {
+    display: inline-flex;
+    padding: 16px var(--spacing-lg, 24px);
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--corner-large, 16px);
+    border: 1px solid var(--Gray5);
+    background: var(--Gray4);
+    color: var(--write, #fff);
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 110%;
+    cursor: not-allowed;
+  }
 }
 
 /* Toast notification animation */

@@ -9,7 +9,7 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [secondaryLanguage, setSecondaryLanguage] = useState("英文");
+  const [secondaryLanguage, setSecondaryLanguage] = useState("繁體中文");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +45,6 @@ export default function Home() {
       const allowedFormats = [
         "video/mp4",
         "video/avi",
-        "video/quicktime",
         "video/webm",
         "video/x-flv",
         "video/x-ms-wmv",
@@ -232,7 +231,22 @@ export default function Home() {
                   id="file-upload"
                 />
 
-                {!selectedFile ? (
+                {isUploading ? (
+                  <div className="text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Image
+                        src="/icons/ui/loading.svg"
+                        alt="Loading"
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 animate-spin"
+                      />
+                      <span className="text-gray-600 font-medium">
+                        上傳中...
+                      </span>
+                    </div>
+                  </div>
+                ) : !selectedFile ? (
                   <div className="text-center">
                     <label
                       htmlFor="file-upload"
@@ -296,35 +310,20 @@ export default function Home() {
                   type="button"
                   onClick={() => void handleTranscribe()}
                   disabled={!selectedFile || isUploading}
-                  className={`px-8 py-3 font-medium rounded-full transition-all duration-200 flex items-center gap-2 shadow-lg ${
+                  className={
                     !selectedFile || isUploading
-                      ? "bg-gray-400 cursor-not-allowed text-gray-200"
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
+                      ? "btn-submit-disabled"
+                      : "btn-submit-default"
+                  }
                 >
-                  {isUploading ? (
-                    <>
-                      <Image
-                        src="/icons/ui/loading.svg"
-                        alt="Loading"
-                        width={20}
-                        height={20}
-                        className="w-5 h-5 animate-spin brightness-0 invert"
-                      />
-                      上傳中...
-                    </>
-                  ) : (
-                    <>
-                      轉換逐字稿
-                      <Image
-                        src="/icons/ui/rounded.svg"
-                        alt="Convert"
-                        width={20}
-                        height={20}
-                        className="w-5 h-5 brightness-0 invert"
-                      />
-                    </>
-                  )}
+                  轉換逐字稿
+                  <Image
+                    src="/icons/ui/rounded.svg"
+                    alt="Convert"
+                    width={20}
+                    height={20}
+                    className="w-5 h-5 brightness-0 invert"
+                  />
                 </button>
               </div>
             </div>
