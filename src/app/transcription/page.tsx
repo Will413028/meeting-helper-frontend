@@ -126,11 +126,12 @@ export default function TranscriptionDetailPage() {
 
       const ws = WaveSurfer.create({
         container: waveformRef.current,
-        waveColor: "#e5e7eb",
-        progressColor: "#3b82f6",
-        height: 128,
-        barWidth: 3,
-        barGap: 2,
+        waveColor: "#E5E5E5",
+        progressColor: "#8181F3",
+        cursorColor: "#8181F3",
+        cursorWidth: 2,
+        barWidth: 4,
+        barGap: 4,
         barRadius: 3,
       });
 
@@ -370,11 +371,11 @@ export default function TranscriptionDetailPage() {
           {/* Audio Player */}
           <div className="bg-white rounded-lg p-6 shadow-sm">
             {/* Waveform */}
-            <div className="mb-6 relative">
+            <div className="mb-2 relative">
               <div
                 ref={waveformRef}
                 className="w-full"
-                style={{ minHeight: "128px" }}
+                style={{ minHeight: "58px" }}
               />
               {isAudioLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-75 rounded">
@@ -383,74 +384,105 @@ export default function TranscriptionDetailPage() {
               )}
             </div>
 
-            {/* Time Display */}
-            <div className="flex justify-between text-sm text-gray-600 mb-4">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
+            {/* Progress Bar */}
+            <div className="mb-3">
+              <button
+                type="button"
+                className="w-full h-2 bg-gray-200 rounded-full cursor-pointer relative p-0 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                onClick={(e) => {
+                  if (!wavesurferRef.current || duration === 0) return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickX = e.clientX - rect.left;
+                  const clickPercent = clickX / rect.width;
+                  wavesurferRef.current.seekTo(clickPercent);
+                }}
+                aria-label="Seek audio position"
+              >
+                <div
+                  className="h-full rounded-full transition-all duration-100 pointer-events-none"
+                  style={{
+                    width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
+                    backgroundColor: "#8181F3",
+                  }}
+                />
+              </button>
             </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-center gap-4">
-              <button
-                type="button"
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                onClick={handleRewind}
-              >
-                <Image
-                  src="/icons/ui/left.svg"
-                  alt="Rewind"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
-                />
-              </button>
+            {/* Controls and Time Display Container */}
+            <div className="flex items-center justify-between">
+              {/* Current Time */}
+              <span className="text-sm text-gray-600 min-w-[45px]">
+                {formatTime(currentTime)}
+              </span>
 
-              <button
-                type="button"
-                onClick={handlePlayPause}
-                disabled={isAudioLoading}
-                className="p-4 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isAudioLoading ? (
+              {/* Control Buttons */}
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  onClick={handleRewind}
+                >
                   <Image
-                    src="/icons/ui/loading.svg"
-                    alt="Loading"
-                    width={32}
-                    height={32}
-                    className="w-8 h-8 animate-spin brightness-0 invert"
+                    src="/icons/ui/arrow-left-spin.svg"
+                    alt="Rewind"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
                   />
-                ) : isPlaying ? (
-                  <Image
-                    src="/icons/ui/stop.svg"
-                    alt="Pause"
-                    width={32}
-                    height={32}
-                    className="w-8 h-8 brightness-0 invert"
-                  />
-                ) : (
-                  <Image
-                    src="/icons/ui/play-filled.svg"
-                    alt="Play"
-                    width={32}
-                    height={32}
-                    className="w-8 h-8 brightness-0 invert"
-                  />
-                )}
-              </button>
+                </button>
 
-              <button
-                type="button"
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                onClick={handleForward}
-              >
-                <Image
-                  src="/icons/ui/right.svg"
-                  alt="Forward"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
-                />
-              </button>
+                <button
+                  type="button"
+                  onClick={handlePlayPause}
+                  disabled={isAudioLoading}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAudioLoading ? (
+                    <Image
+                      src="/icons/ui/loading.svg"
+                      alt="Loading"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 animate-spin"
+                    />
+                  ) : isPlaying ? (
+                    <Image
+                      src="/icons/ui/stop.svg"
+                      alt="Pause"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6"
+                    />
+                  ) : (
+                    <Image
+                      src="/icons/ui/play-filled.svg"
+                      alt="Play"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6"
+                    />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  onClick={handleForward}
+                >
+                  <Image
+                    src="/icons/ui/arrow-right-spin.svg"
+                    alt="Forward"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
+                </button>
+              </div>
+
+              {/* Duration */}
+              <span className="text-sm text-gray-600 min-w-[45px] text-right">
+                {formatTime(duration)}
+              </span>
             </div>
           </div>
 
