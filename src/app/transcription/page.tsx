@@ -338,16 +338,10 @@ export default function TranscriptionDetailPage() {
           {/* Metadata - Not in white box */}
           <div className="flex items-center gap-6 mb-6">
             <div className="flex items-center gap-2">
-              <span
-                className="text-base font-bold leading-[110%]"
-                style={{ color: "#3E3747" }}
-              >
+              <span className="text-base font-bold leading-[110%] text-[#3E3747]">
                 上傳時間
               </span>
-              <span
-                className="text-base font-normal leading-[110%]"
-                style={{ color: "#8E8A93" }}
-              >
+              <span className="text-base font-normal leading-[110%] text-[#8E8A93]">
                 {formatDate(transcription.created_at)}
               </span>
             </div>
@@ -356,11 +350,7 @@ export default function TranscriptionDetailPage() {
               {transcription.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="tag-item flex px-2 py-1 justify-center items-center rounded-lg text-sm font-medium"
-                  style={{
-                    background: "rgba(73, 129, 190, 0.20)",
-                    color: "#346392",
-                  }}
+                  className="tag-item flex px-2 py-1 justify-center items-center rounded-lg text-sm font-medium bg-[rgba(73,129,190,0.20)] text-[#346392]"
                 >
                   #{tag}
                 </span>
@@ -372,11 +362,7 @@ export default function TranscriptionDetailPage() {
           <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
             {/* Waveform */}
             <div className="mb-2 relative">
-              <div
-                ref={waveformRef}
-                className="w-full"
-                style={{ minHeight: "58px" }}
-              />
+              <div ref={waveformRef} className="w-full min-h-[58px]" />
               {isAudioLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-75 rounded">
                   <div className="text-gray-600">Loading audio...</div>
@@ -399,10 +385,9 @@ export default function TranscriptionDetailPage() {
                 aria-label="Seek audio position"
               >
                 <div
-                  className="h-full rounded-full transition-all duration-100 pointer-events-none"
+                  className="h-full rounded-full transition-all duration-100 pointer-events-none bg-[#8181F3]"
                   style={{
                     width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
-                    backgroundColor: "#8181F3",
                   }}
                 />
               </button>

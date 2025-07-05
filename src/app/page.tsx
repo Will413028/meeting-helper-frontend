@@ -182,7 +182,7 @@ export default function Home() {
           {/* Main Card */}
           <div className="bg-white rounded-2xl shadow-2xl p-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">主要語言</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="mb-6 self-stretch text-[var(--Black,#140B1F)] font-['Noto_Sans_TC'] text-base font-normal leading-[110%]">
               可以設定逐字稿所需要的語言，增加精準度！
             </p>
 
@@ -196,9 +196,9 @@ export default function Home() {
                     onChange={(e) => {
                       setSecondaryLanguage(e.target.value);
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
+                    className="flex flex-col justify-center items-start self-stretch w-full px-3 py-2 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black border border-[#B6B3BA]"
                   >
-                    <option value="繁體中文">繁體中文（預設）</option>
+                    <option value="繁體中文">繁體中文</option>
                     <option value="英文">英文</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
@@ -221,7 +221,7 @@ export default function Home() {
               </div>
 
               {/* File Upload Section */}
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+              <div className="file-upload-container">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -232,22 +232,18 @@ export default function Home() {
                 />
 
                 {isUploading ? (
-                  <div className="text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Image
-                        src="/icons/ui/loading.svg"
-                        alt="Loading"
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 animate-spin"
-                      />
-                      <span className="text-gray-600 font-medium">
-                        上傳中...
-                      </span>
-                    </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <Image
+                      src="/icons/ui/loading.svg"
+                      alt="Loading"
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 animate-spin"
+                    />
+                    <span className="text-gray-600 font-medium">上傳中...</span>
                   </div>
                 ) : !selectedFile ? (
-                  <div className="text-center">
+                  <>
                     <label
                       htmlFor="file-upload"
                       className="flex flex-col items-center gap-2 cursor-pointer"
@@ -259,16 +255,16 @@ export default function Home() {
                         height={48}
                         className="w-12 h-12 opacity-60 hover:opacity-80 transition-opacity"
                       />
-                      <span className="text-blue-600 hover:text-blue-700 font-medium">
+                      <span className="text-[#8181F3] hover:text-[#565AB6] font-medium">
                         選擇上傳檔案
                       </span>
                     </label>
-                    <p className="text-gray-500 text-sm mt-2">
+                    <p className="text-gray-500 text-sm">
                       支援MP4、AVI、MOV、WebM、FLV、WMV、MP3、WAV格式
                     </p>
-                  </div>
+                  </>
                 ) : (
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
                       <Image
                         src="/icons/ui/file.svg"
@@ -289,7 +285,7 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={handleRemoveFile}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 hover:bg-[rgba(129,129,243,0.20)] rounded-lg transition-colors"
                       title="移除檔案"
                     >
                       <Image
@@ -318,7 +314,7 @@ export default function Home() {
                 >
                   轉換逐字稿
                   <Image
-                    src="/icons/ui/rounded.svg"
+                    src="/icons/ui/right.svg"
                     alt="Convert"
                     width={20}
                     height={20}

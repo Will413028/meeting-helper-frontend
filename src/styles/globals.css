@@ -97,6 +97,16 @@ body {
     @apply shadow-[inset_0_0_4px_0_rgba(181,150,233,0.40)];
   }
 
+  /* File upload section styles */
+  @layer components {
+    .file-upload-container {
+      @apply flex flex-col justify-center items-center gap-2.5 p-8 rounded-lg border border-dashed w-full;
+      height: 140px;
+      border-color: var(--8181F3, #8181f3);
+      background-color: var(--8181F3-10, rgba(129, 129, 243, 0.1));
+    }
+  }
+
   .btn-submit-disabled {
     display: inline-flex;
     padding: 16px var(--spacing-lg, 24px);

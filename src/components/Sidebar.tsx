@@ -88,14 +88,8 @@ export default function Sidebar({
                     className={`w-full h-full ${
                       activeItem === item.id
                         ? "brightness-0 invert"
-                        : "opacity-90"
+                        : "opacity-90 invert-[91%] sepia-[8%] saturate-[180%] hue-rotate-[213deg] brightness-[95%] contrast-[87%]"
                     }`}
-                    style={{
-                      filter:
-                        activeItem !== item.id
-                          ? "invert(91%) sepia(8%) saturate(180%) hue-rotate(213deg) brightness(95%) contrast(87%)"
-                          : undefined,
-                    }}
                   />
                 </div>
                 <span className="text-center font-['Noto_Sans_TC'] text-xl font-bold leading-[120%]">
@@ -116,11 +110,7 @@ export default function Sidebar({
                   alt="Sign out"
                   width={24}
                   height={24}
-                  className="w-full h-full opacity-90"
-                  style={{
-                    filter:
-                      "invert(91%) sepia(8%) saturate(180%) hue-rotate(213deg) brightness(95%) contrast(87%)",
-                  }}
+                  className="w-full h-full opacity-90 invert-[91%] sepia-[8%] saturate-[180%] hue-rotate-[213deg] brightness-[95%] contrast-[87%]"
                 />
               </div>
               <span className="text-center font-['Noto_Sans_TC'] text-xl font-bold leading-[120%]">

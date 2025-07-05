@@ -72,7 +72,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 relative overflow-hidden">
       {/* Orb Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
+        <div className="w-full h-full relative">
           <Orb
             hoverIntensity={5}
             rotateOnHover={true}
@@ -124,25 +124,10 @@ export default function LoginPage() {
                   className={`w-full px-0 py-3 border-0 border-b-2 bg-transparent text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-0 ${
                     error
                       ? "border-red-500 focus:border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  style={{
-                    borderBottomColor: error
-                      ? undefined
                       : username
-                        ? "#333C8C"
-                        : undefined,
-                  }}
-                  onFocus={(e) => {
-                    if (!error) {
-                      e.target.style.borderBottomColor = "#333C8C";
-                    }
-                  }}
-                  onBlur={(e) => {
-                    if (!error && !username) {
-                      e.target.style.borderBottomColor = "";
-                    }
-                  }}
+                        ? "border-b-[#333C8C] focus:border-b-[#333C8C]"
+                        : "border-gray-300 focus:border-b-[#333C8C]"
+                  }`}
                   placeholder="請輸入帳號"
                   disabled={isLoading}
                 />
@@ -168,25 +153,10 @@ export default function LoginPage() {
                     className={`w-full px-0 py-3 pr-10 border-0 border-b-2 bg-transparent text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-0 ${
                       error
                         ? "border-red-500 focus:border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    style={{
-                      borderBottomColor: error
-                        ? undefined
                         : password
-                          ? "#333C8C"
-                          : undefined,
-                    }}
-                    onFocus={(e) => {
-                      if (!error) {
-                        e.target.style.borderBottomColor = "#333C8C";
-                      }
-                    }}
-                    onBlur={(e) => {
-                      if (!error && !password) {
-                        e.target.style.borderBottomColor = "";
-                      }
-                    }}
+                          ? "border-b-[#333C8C] focus:border-b-[#333C8C]"
+                          : "border-gray-300 focus:border-b-[#333C8C]"
+                    }`}
                     placeholder="請輸入密碼"
                     disabled={isLoading}
                   />
@@ -217,14 +187,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full text-white font-medium py-4 px-6 rounded-full text-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: "#3B3F2D" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#2d3122";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#3B3F2D";
-                  }}
+                  className="w-full text-white font-medium py-4 px-6 rounded-full text-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-[#3B3F2D] hover:bg-[#2d3122]"
                 >
                   {isLoading ? "登入中..." : "登入"}
                 </button>
