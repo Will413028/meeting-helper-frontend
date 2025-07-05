@@ -357,19 +357,6 @@ export default function TranscriptionDetailPage() {
 
           {/* Audio Player */}
           <div className="bg-white rounded-lg p-6 shadow-sm">
-            {/* Debug Info */}
-            <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
-              <p>Transcription ID: {transcriptionId}</p>
-              <p>WaveSurfer Instance: {wavesurferRef.current ? 'Yes' : 'No'}</p>
-              <button
-                type="button"
-                onClick={initializeWaveSurfer}
-                className="mt-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                Manual Init WaveSurfer
-              </button>
-            </div>
-
             {/* Waveform */}
             <div className="mb-6 relative">
               <div
