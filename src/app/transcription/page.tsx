@@ -112,56 +112,55 @@ export default function TranscriptionDetailPage() {
   useEffect(() => {
     if (!waveformRef.current || !transcriptionId) return;
 
-    // Create WaveSurfer instance
-    const wavesurfer = WaveSurfer.create({
-      container: waveformRef.current,
-      waveColor: "#e5e7eb",
-      progressColor: "#3b82f6",
-      cursorColor: "transparent",
-      barWidth: 3,
-      barGap: 2,
-      barRadius: 3,
-      height: 128,
-      normalize: true,
-      interact: true,
-      url: `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`,
-    });
+    // Wait a bit for DOM to be ready
+    const timer = setTimeout(() => {
+      if (!waveformRef.current) return;
 
-    wavesurferRef.current = wavesurfer;
-
-    // Event handlers
-    wavesurfer.on("loading", () => {
-      setIsAudioLoading(true);
-    });
-
-    wavesurfer.on("ready", () => {
-      setIsAudioLoading(false);
-      setDuration(wavesurfer.getDuration());
-    });
-
-    wavesurfer.on("timeupdate", (currentTime) => {
-      setCurrentTime(currentTime);
-    });
-
-    wavesurfer.on("finish", () => {
-      setIsPlaying(false);
-    });
-
-    wavesurfer.on("play", () => {
-      setIsPlaying(true);
-    });
-
-    wavesurfer.on("pause", () => {
-      setIsPlaying(false);
-    });
-
-    // Load the audio
-    void wavesurfer.load(
-      `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`,
-    );
+      try {
+        console.log('Auto-initializing WaveSurfer...');
+        
+        const ws = WaveSurfer.create({
+          container: waveformRef.current,
+          waveColor: '#e5e7eb',
+          progressColor: '#3b82f6',
+          height: 128,
+          barWidth: 3,
+          barGap: 2,
+          barRadius: 3,
+        });
+        
+        wavesurferRef.current = ws;
+        
+        ws.on('ready', () => {
+          console.log('WaveSurfer ready');
+          setIsAudioLoading(false);
+          setDuration(ws.getDuration());
+        });
+        
+        ws.on('error', (e) => {
+          console.error('WaveSurfer error:', e);
+          setIsAudioLoading(false);
+        });
+        
+        ws.on('play', () => setIsPlaying(true));
+        ws.on('pause', () => setIsPlaying(false));
+        ws.on('timeupdate', (time) => setCurrentTime(time));
+        
+        const url = `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`;
+        ws.load(url);
+        
+        console.log('Auto-init successful');
+      } catch (error) {
+        console.error('Auto-init failed:', error);
+      }
+    }, 1000); // Wait 1 second
 
     return () => {
-      wavesurfer.destroy();
+      clearTimeout(timer);
+      if (wavesurferRef.current) {
+        wavesurferRef.current.destroy();
+        wavesurferRef.current = null;
+      }
     };
   }, [transcriptionId]);
 
@@ -333,13 +332,74 @@ export default function TranscriptionDetailPage() {
 
           {/* Audio Player */}
           <div className="bg-white rounded-lg p-6 shadow-sm">
+            {/* Debug Info */}
+            <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
+              <p>Transcription ID: {transcriptionId}</p>
+              <p>WaveSurfer Instance: {wavesurferRef.current ? 'Yes' : 'No'}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  console.log('Manual init clicked');
+                  if (!waveformRef.current) {
+                    alert('No waveform container!');
+                    return;
+                  }
+                  
+                  try {
+                    // Destroy existing instance if any
+                    if (wavesurferRef.current) {
+                      wavesurferRef.current.destroy();
+                      wavesurferRef.current = null;
+                    }
+                    
+                    const ws = WaveSurfer.create({
+                      container: waveformRef.current,
+                      waveColor: '#e5e7eb',
+                      progressColor: '#3b82f6',
+                      height: 128,
+                      barWidth: 3,
+                      barGap: 2,
+                      barRadius: 3,
+                    });
+                    
+                    wavesurferRef.current = ws;
+                    
+                    ws.on('ready', () => {
+                      setIsAudioLoading(false);
+                      setDuration(ws.getDuration());
+                    });
+                    
+                    ws.on('play', () => setIsPlaying(true));
+                    ws.on('pause', () => setIsPlaying(false));
+                    ws.on('timeupdate', (time) => setCurrentTime(time));
+                    
+                    const url = `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`;
+                    ws.load(url);
+                    
+                    console.log('Manual init successful');
+                  } catch (error) {
+                    console.error('Manual init failed:', error);
+                    alert('Failed to create WaveSurfer: ' + error);
+                  }
+                }}
+                className="mt-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Manual Init WaveSurfer
+              </button>
+            </div>
+
             {/* Waveform */}
-            <div className="mb-6">
+            <div className="mb-6 relative">
               <div
                 ref={waveformRef}
                 className="w-full"
                 style={{ minHeight: "128px" }}
               />
+              {isAudioLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-75 rounded">
+                  <div className="text-gray-600">Loading audio...</div>
+                </div>
+              )}
             </div>
 
             {/* Time Display */}
