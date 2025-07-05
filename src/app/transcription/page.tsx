@@ -369,7 +369,7 @@ export default function TranscriptionDetailPage() {
           </div>
 
           {/* Audio Player */}
-          <div className="bg-white rounded-lg p-6 shadow-sm">
+          <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
             {/* Waveform */}
             <div className="mb-2 relative">
               <div
@@ -487,26 +487,32 @@ export default function TranscriptionDetailPage() {
           </div>
 
           {/* Summary and Transcription Section - Side by Side */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Summary Section - Left Side with Scroll */}
-            {transcription.summary && (
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">摘要</h2>
-                <div className="text-gray-700 whitespace-pre-wrap max-h-[600px] overflow-y-auto pr-2">
-                  {transcription.summary}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="flex flex-col lg:flex-row">
+              {/* Summary Section - Left Side with Scroll */}
+              {transcription.summary && (
+                <div className="flex-1 p-6">
+                  <h2 className="text-xl font-bold text-gray-900 pb-4 mb-4 border-b border-gray-200">
+                    摘要
+                  </h2>
+                  <div className="text-gray-700 whitespace-pre-wrap max-h-[600px] overflow-y-auto pr-2">
+                    {transcription.summary}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Transcription Text Section - Right Side with Scroll */}
-            {transcription.transcription_text && (
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">逐字稿</h2>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto pr-2">
-                  {transcription.transcription_text}
+              {/* Transcription Text Section - Right Side with Scroll */}
+              {transcription.transcription_text && (
+                <div className="flex-1 p-6">
+                  <h2 className="text-xl font-bold text-gray-900 pb-4 mb-4 border-b border-gray-200">
+                    逐字稿
+                  </h2>
+                  <div className="text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[600px] overflow-y-auto pr-2">
+                    {transcription.transcription_text}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </main>
