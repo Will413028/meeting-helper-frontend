@@ -65,3 +65,14 @@ body {
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+/* Tag selection styling */
+.tag-item::selection {
+  background-color: #346392;
+  color: #ffffff;
+}
+
+.tag-item::-moz-selection {
+  background-color: #346392;
+  color: #ffffff;
+}

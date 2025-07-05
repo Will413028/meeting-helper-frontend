@@ -16,17 +16,6 @@ interface TranscriptionDetail {
   transcription_text?: string;
 }
 
-// Helper function to convert seconds to HH:MM:SS format
-const formatDuration = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-
-  return [hours, minutes, secs]
-    .map((val) => val.toString().padStart(2, "0"))
-    .join(":");
-};
-
 // Helper function to format time for display
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
@@ -294,38 +283,11 @@ export default function TranscriptionDetailPage() {
             />
           </button>
 
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            {transcription.transcription_title}
-          </h1>
-
-          {/* Metadata - Not in white box */}
+          {/* Title and Action Buttons */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">上傳時間</span>
-                <span className="text-gray-900">
-                  {formatDate(transcription.created_at)}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">音檔長度</span>
-                <span className="text-gray-900">
-                  {formatDuration(transcription.audio_duration)}
-                </span>
-              </div>
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {transcription.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </div>
+            <h2 className="text-3xl font-bold text-gray-900">
+              {transcription.transcription_title}
+            </h2>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -369,6 +331,39 @@ export default function TranscriptionDetailPage() {
                   className="w-5 h-5"
                 />
               </button>
+            </div>
+          </div>
+
+          {/* Metadata - Not in white box */}
+          <div className="flex items-center gap-6 mb-6">
+            <div className="flex items-center gap-2">
+              <span
+                className="text-base font-bold leading-[110%]"
+                style={{ color: "#3E3747" }}
+              >
+                上傳時間
+              </span>
+              <span
+                className="text-base font-normal leading-[110%]"
+                style={{ color: "#8E8A93" }}
+              >
+                {formatDate(transcription.created_at)}
+              </span>
+            </div>
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2">
+              {transcription.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="tag-item flex px-2 py-1 justify-center items-center rounded-lg text-sm font-medium"
+                  style={{
+                    background: "rgba(73, 129, 190, 0.20)",
+                    color: "#346392",
+                  }}
+                >
+                  #{tag}
+                </span>
+              ))}
             </div>
           </div>
 
