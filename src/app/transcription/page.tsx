@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
 import Sidebar from "@/components/Sidebar";
 import { auth, type User } from "@/utils/auth";
@@ -108,61 +108,86 @@ export default function TranscriptionDetailPage() {
     void fetchTranscriptionDetail();
   }, [isAuthenticated, transcriptionId, router]);
 
-  // Initialize WaveSurfer
-  useEffect(() => {
-    if (!waveformRef.current || !transcriptionId) return;
+  // Initialize WaveSurfer function
+  const initializeWaveSurfer = useCallback(() => {
+    if (!waveformRef.current || !transcriptionId) {
+      console.log('Cannot initialize - missing ref or ID');
+      return;
+    }
 
-    // Wait a bit for DOM to be ready
-    const timer = setTimeout(() => {
-      if (!waveformRef.current) return;
-
-      try {
-        console.log('Auto-initializing WaveSurfer...');
-        
-        const ws = WaveSurfer.create({
-          container: waveformRef.current,
-          waveColor: '#e5e7eb',
-          progressColor: '#3b82f6',
-          height: 128,
-          barWidth: 3,
-          barGap: 2,
-          barRadius: 3,
-        });
-        
-        wavesurferRef.current = ws;
-        
-        ws.on('ready', () => {
-          console.log('WaveSurfer ready');
-          setIsAudioLoading(false);
-          setDuration(ws.getDuration());
-        });
-        
-        ws.on('error', (e) => {
-          console.error('WaveSurfer error:', e);
-          setIsAudioLoading(false);
-        });
-        
-        ws.on('play', () => setIsPlaying(true));
-        ws.on('pause', () => setIsPlaying(false));
-        ws.on('timeupdate', (time) => setCurrentTime(time));
-        
-        const url = `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`;
-        ws.load(url);
-        
-        console.log('Auto-init successful');
-      } catch (error) {
-        console.error('Auto-init failed:', error);
+    try {
+      // Destroy existing instance if any
+      if (wavesurferRef.current) {
+        wavesurferRef.current.destroy();
+        wavesurferRef.current = null;
       }
-    }, 1000); // Wait 1 second
+
+      console.log('Initializing WaveSurfer...');
+      
+      const ws = WaveSurfer.create({
+        container: waveformRef.current,
+        waveColor: '#e5e7eb',
+        progressColor: '#3b82f6',
+        height: 128,
+        barWidth: 3,
+        barGap: 2,
+        barRadius: 3,
+      });
+      
+      wavesurferRef.current = ws;
+      
+      ws.on('ready', () => {
+        console.log('WaveSurfer ready');
+        setIsAudioLoading(false);
+        setDuration(ws.getDuration());
+      });
+      
+      ws.on('error', (e) => {
+        console.error('WaveSurfer error:', e);
+        setIsAudioLoading(false);
+      });
+      
+      ws.on('play', () => setIsPlaying(true));
+      ws.on('pause', () => setIsPlaying(false));
+      ws.on('timeupdate', (time) => setCurrentTime(time));
+      
+      const url = `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`;
+      ws.load(url);
+      
+      console.log('WaveSurfer initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize WaveSurfer:', error);
+    }
+  }, [transcriptionId]);
+
+  // Try to initialize on mount and when transcription data is loaded
+  useEffect(() => {
+    if (!transcription || !waveformRef.current || !transcriptionId) return;
+
+    // Use a flag to prevent double initialization
+    let mounted = true;
+
+    const timer = setTimeout(() => {
+      if (mounted && !wavesurferRef.current) {
+        initializeWaveSurfer();
+      }
+    }, 100);
 
     return () => {
+      mounted = false;
       clearTimeout(timer);
+    };
+  }, [transcription, transcriptionId, initializeWaveSurfer]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
       if (wavesurferRef.current) {
         wavesurferRef.current.destroy();
         wavesurferRef.current = null;
       }
     };
-  }, [transcriptionId]);
+  }, []);
 
   const handlePlayPause = () => {
     if (!wavesurferRef.current) return;
@@ -338,50 +363,7 @@ export default function TranscriptionDetailPage() {
               <p>WaveSurfer Instance: {wavesurferRef.current ? 'Yes' : 'No'}</p>
               <button
                 type="button"
-                onClick={() => {
-                  console.log('Manual init clicked');
-                  if (!waveformRef.current) {
-                    alert('No waveform container!');
-                    return;
-                  }
-                  
-                  try {
-                    // Destroy existing instance if any
-                    if (wavesurferRef.current) {
-                      wavesurferRef.current.destroy();
-                      wavesurferRef.current = null;
-                    }
-                    
-                    const ws = WaveSurfer.create({
-                      container: waveformRef.current,
-                      waveColor: '#e5e7eb',
-                      progressColor: '#3b82f6',
-                      height: 128,
-                      barWidth: 3,
-                      barGap: 2,
-                      barRadius: 3,
-                    });
-                    
-                    wavesurferRef.current = ws;
-                    
-                    ws.on('ready', () => {
-                      setIsAudioLoading(false);
-                      setDuration(ws.getDuration());
-                    });
-                    
-                    ws.on('play', () => setIsPlaying(true));
-                    ws.on('pause', () => setIsPlaying(false));
-                    ws.on('timeupdate', (time) => setCurrentTime(time));
-                    
-                    const url = `http://114.34.174.244:8701/api/v1/transcription/${transcriptionId}/audio`;
-                    ws.load(url);
-                    
-                    console.log('Manual init successful');
-                  } catch (error) {
-                    console.error('Manual init failed:', error);
-                    alert('Failed to create WaveSurfer: ' + error);
-                  }
-                }}
+                onClick={initializeWaveSurfer}
                 className="mt-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
               >
                 Manual Init WaveSurfer
